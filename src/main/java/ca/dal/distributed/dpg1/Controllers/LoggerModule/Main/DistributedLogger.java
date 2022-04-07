@@ -25,7 +25,7 @@ public abstract class DistributedLogger {
             String hostname = "hostname"; // TODO: Once the backend session is complete get the host from the backend
             String username = "bharatwaaj"; // TODO: Once the backend session is complete get the user from the backend
             fileWriter.append(LoggerConstants.STRING_TIMESTAMP + GlobalConstants.STRING_COLON_SEPARATOR
-                    + String.valueOf(System.currentTimeMillis()) + GlobalConstants.STRING_PIPE_SEPARATOR);
+                    + Instant.now() + GlobalConstants.STRING_PIPE_SEPARATOR);
             fileWriter.append(LoggerConstants.STRING_LOG_TYPE + GlobalConstants.STRING_COLON_SEPARATOR
                     + loggerType.toString() + GlobalConstants.STRING_PIPE_SEPARATOR);
             fileWriter.append(LoggerConstants.STRING_HOST_NAME + GlobalConstants.STRING_COLON_SEPARATOR + hostname
