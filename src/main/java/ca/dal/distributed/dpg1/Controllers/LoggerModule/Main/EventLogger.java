@@ -10,7 +10,8 @@ public class EventLogger extends DistributedLogger {
 
     /**
      * @author Bharatwaaj Shankaranarayanan
-     * @description Logs Data using parent's storeQueryLog sends Event Logger Log Type
+     * @description Logs Data using parent's storeQueryLog sends Event Logger Log
+     *              Type
      */
     @Override
     public void logData(String message) {

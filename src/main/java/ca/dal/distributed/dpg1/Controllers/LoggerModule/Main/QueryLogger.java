@@ -10,7 +10,8 @@ public class QueryLogger extends DistributedLogger {
 
     /**
      * @author Bharatwaaj Shankaranarayanan
-     * @description Logs Data using parent's storeQueryLog sends Query Logger Log Type
+     * @description Logs Data using parent's storeQueryLog sends Query Logger Log
+     *              Type
      */
     @Override
     public void logData(String message) {
