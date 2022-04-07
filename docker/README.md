@@ -8,3 +8,4 @@ Steps:
    docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' node1
    docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' node2
 5. ssh root@node_ip
+6. Enter password: root
