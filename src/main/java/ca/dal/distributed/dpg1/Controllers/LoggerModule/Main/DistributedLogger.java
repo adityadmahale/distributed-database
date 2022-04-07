@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.time.Instant;
 
 import ca.dal.distributed.dpg1.Controllers.LoggerModule.Utils.Constants;
+import ca.dal.distributed.dpg1.Utils.GlobalConstants;
 import ca.dal.distributed.dpg1.Controllers.LoggerModule.Enums.LoggerType;
 
 /**
@@ -21,19 +22,14 @@ public abstract class DistributedLogger {
      */
     private void writeLog(final String message, final LoggerType loggerType) {
         try (final FileWriter fileWriter = new FileWriter(Constants.LOG_FILE_QUERY, true)) {
-            fileWriter.append("Timestamp: " + String.valueOf(System.currentTimeMillis()) + " | ");
-            fileWriter.append("LogType: " + loggerType.toString() + " | ");
-            // TODO: Once the backend session is complete get the host from the backend
-            // session
-            fileWriter.append("Hostname: hostname" + " | ");
-            // queryLogFileWriter.append(BackendSession.getLoggedInUser().getHostName());
-            // TODO: Once the backend session is complete get the user from the backend
-            // session
-            fileWriter.append("Username: Bharatwaaj" + " | ");
-            // queryLogFileWriter.append(BackendSession.getLoggedInUser().getUserName());
-            fileWriter.append("Query: " + message + " | ");
-            fileWriter.append(Instant.now().toString() + " | ");
-            fileWriter.append("\n");
+            String hostname = "hostname"; // TODO: Once the backend session is complete get the host from the backend
+            String username = "bharatwaaj"; // TODO: Once the backend session is complete get the user from the backend
+            fileWriter.append(Constants.STRING_TIMESTAMP + GlobalConstants.STRING_COLON_SEPARATOR + String.valueOf(System.currentTimeMillis()) + GlobalConstants.STRING_PIPE_SEPARATOR);
+            fileWriter.append(Constants.STRING_LOG_TYPE + GlobalConstants.STRING_COLON_SEPARATOR + loggerType.toString() + GlobalConstants.STRING_PIPE_SEPARATOR);
+            fileWriter.append(Constants.STRING_HOST_NAME + GlobalConstants.STRING_COLON_SEPARATOR + hostname + GlobalConstants.STRING_PIPE_SEPARATOR);
+            fileWriter.append(Constants.STRING_USER_NAME + GlobalConstants.STRING_COLON_SEPARATOR + username + GlobalConstants.STRING_PIPE_SEPARATOR);
+            fileWriter.append(Constants.STRING_MESSAGE + GlobalConstants.STRING_COLON_SEPARATOR + message + message + GlobalConstants.STRING_PIPE_SEPARATOR);
+            fileWriter.append(GlobalConstants.STRING_NEXT_LINE);
         } catch (final IOException e) {
             e.printStackTrace();
         }

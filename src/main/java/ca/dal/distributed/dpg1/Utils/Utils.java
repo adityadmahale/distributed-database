@@ -1,5 +1,6 @@
 package ca.dal.distributed.dpg1.Utils;
 
+import java.io.File;
 import java.util.regex.Pattern;
 
 /**
@@ -23,4 +24,8 @@ public final class Utils {
         return isDatabaseNameValid;
     }
 
+    public static File[] readAllTables(final String databasePath) {
+        final File allTables = new File(databasePath);
+        return allTables.listFiles();
+    }
 }
