@@ -4,6 +4,7 @@ RUN apt-get update && apt-get install -y openssh-server openjdk-17-jre openjdk-1
 RUN mkdir /var/run/sshd
 RUN echo 'root:root' | chpasswd
 RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+RUN echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
 RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 COPY target/DistributedDatabase.jar .
 EXPOSE 22
