@@ -18,7 +18,7 @@ public class App {
 
         public static void main(String[] args) throws NoSuchAlgorithmException, IOException, ERDGeneratorException {
                 
-                Console c = System.console();
+                Scanner c = new Scanner(System.in);
                 String userName;
                 String pass, passConfirm, securityAnswer;
                 char[] ch, ch1;
@@ -41,13 +41,14 @@ public class App {
                         switch (access_option) {
                                 case 1:
                                         System.out.println("\nEnter your name: ");
-                                        userName = c.readLine();
+                                        userName = c.nextLine();
                                         System.out.println("\nEnter password: ");
-                                        ch = c.readPassword();
-                                        pass = String.valueOf(ch);
+//                                        ch = c.readPassword();
+                                        pass=c.nextLine();
+//                                        pass = String.valueOf(ch);
                                         System.out.println("\nAnswer the following Security Question:");
                                         System.out.println("\nWhat primary school did you attend?");
-                                        securityAnswer = c.readLine();
+                                        securityAnswer = c.nextLine();
                                         loginValidation = chk_login.checkLogin(userName, pass, securityAnswer);
                                         if (loginValidation) {
                                                 System.out.println("\nSucessfully Logged in as:" + userName);
@@ -69,7 +70,7 @@ public class App {
                                                                 System.out.println(
                                                                                 "\nEnter Query or Transaction, Enter x to Exit:");
                                                                 while (!Query.equals("x")) {
-                                                                                Query = c.readLine();
+                                                                                Query = c.nextLine();
                                                                                 if (!Query.equals("x")) {
                                                                                 System.out.println(Query);
                                                                         }
@@ -82,7 +83,7 @@ public class App {
                                                         // ERD Function                
                                                         case 3:
                                                                 System.out.println("\nEnter Database Name to generate ERD");
-                                                                Query = c.readLine();
+                                                                Query = c.nextLine();
                                                                 System.out.println("\nERD:");
                                                                 erdGenerator.generateERD(Query);
                                                                 break;
@@ -102,27 +103,31 @@ public class App {
                                         break;
                                 case 2:
                                         System.out.println("\nset your name: ");
-                                        userName = c.readLine();
+                                        userName = c.nextLine();
                                         System.out.println("\nset your password: ");
-                                        ch = c.readPassword();
-                                        pass = String.valueOf(ch);
+//                                        ch = c.nextLine();
+                                        pass =c.nextLine();
+//                                        pass = String.valueOf(ch);
                                         System.out.println("\nEnter password once again: ");
-                                        ch1 = c.readPassword();
-                                        passConfirm = String.valueOf(ch1);
+//                                        ch1 = c.readPassword();
+                                        passConfirm=c.nextLine();
+//                                        passConfirm = String.valueOf(ch1);
                                         System.out.println(pass);
                                         System.out.println(passConfirm);
                                         while (!pass.equals(passConfirm)) {
                                                 System.out.println("\nPasswords did not matched");
                                                 System.out.println("\nset your password: ");
-                                                ch = c.readPassword();
-                                                pass = String.valueOf(ch);
+//                                                ch = c.readPassword();
+                                                 pass=c.nextLine();
+//                                                pass = String.valueOf(ch);
                                                 System.out.println("\nEnter password once again: ");
-                                                ch = c.readPassword();
-                                                passConfirm = String.valueOf(ch);
+//                                                ch = c.readPassword();
+                                                passConfirm=c.nextLine();
+//                                                passConfirm = String.valueOf(ch);
                                         }
                                         System.out.println("\nAnswer the following Security Question:");
                                         System.out.println("\nWhat primary school did you attend?");
-                                        securityAnswer = c.readLine();
+                                        securityAnswer = c.nextLine();
                                         reg.setRegister(userName, pass, securityAnswer);
                                         System.out.println("\nSucessfully Registered, Please Login now...");
                                         break;
