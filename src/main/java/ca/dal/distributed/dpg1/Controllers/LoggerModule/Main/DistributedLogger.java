@@ -21,7 +21,7 @@ public abstract class DistributedLogger {
      *              message
      */
     private void writeLog(final String message, final LoggerType loggerType) {
-        try (final FileWriter fileWriter = new FileWriter(LoggerConstants.LOG_FILE_QUERY, true)) {
+        try (final FileWriter fileWriter = new FileWriter(loggerType.getLoggerFile(), true)) {
             String hostname = "hostname"; // TODO: Once the backend session is complete get the host from the backend
             String username = "bharatwaaj"; // TODO: Once the backend session is complete get the user from the backend
             fileWriter.append(LoggerConstants.STRING_TIMESTAMP + GlobalConstants.STRING_COLON_SEPARATOR
@@ -32,8 +32,7 @@ public abstract class DistributedLogger {
                     + GlobalConstants.STRING_PIPE_SEPARATOR);
             fileWriter.append(LoggerConstants.STRING_USER_NAME + GlobalConstants.STRING_COLON_SEPARATOR + username
                     + GlobalConstants.STRING_PIPE_SEPARATOR);
-            fileWriter.append(LoggerConstants.STRING_MESSAGE + GlobalConstants.STRING_COLON_SEPARATOR + message
-                    + message + GlobalConstants.STRING_PIPE_SEPARATOR);
+            fileWriter.append(LoggerConstants.STRING_MESSAGE + GlobalConstants.STRING_COLON_SEPARATOR + message + GlobalConstants.STRING_PIPE_SEPARATOR);
             fileWriter.append(GlobalConstants.STRING_NEXT_LINE);
         } catch (final IOException e) {
             e.printStackTrace();
