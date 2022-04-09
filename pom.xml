@@ -22,6 +22,15 @@
                 <role>Student</role>
             </roles>
         </developer>
+        <developer>
+            <id>B00886779</id>
+            <name>Ankush Mudgal</name>
+            <email>amudgal@dal.ca</email>
+            <roles>
+                <role>Student</role>
+                <role>Developer</role>
+            </roles>
+        </developer>
     </developers>
 
     <build>
