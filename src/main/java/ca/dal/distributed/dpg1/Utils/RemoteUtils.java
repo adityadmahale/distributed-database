@@ -1,6 +1,7 @@
 package ca.dal.distributed.dpg1.Utils;
 
 import ca.dal.distributed.dpg1.Controllers.AnalyticsModule.Utils.AnalyticsUpdate;
+import ca.dal.distributed.dpg1.Controllers.ExportModule.Main.ExportData;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryExecutor;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.MetaDataHandler;
 import com.jcraft.jsch.*;
@@ -151,13 +152,11 @@ public class RemoteUtils {
                     databaseName = args[1];
                     String ip = args[2];
                     GlobalUtils.writeToGlobalMetaData(databaseName, ip);
-//                case RemoteConstants.COMMAND_EXPORT_SQL:
-//                    // databaseName = args[1];
-//                    List<String> tables = new ArrayList<>();
-//                    tables.add("table1");
-//                    ExportData export = new ExportData("db1", tables);
-//                    export.exportToFile();
-//                    break;
+                case RemoteConstants.COMMAND_EXPORT_SQL:
+                    databaseName = args[1];
+                    ExportData export = new ExportData(databaseName);
+                    export.exportToFile();
+                    break;
             }
 
         } catch (Exception e) {

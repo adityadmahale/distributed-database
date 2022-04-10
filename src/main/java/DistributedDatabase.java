@@ -6,6 +6,7 @@ import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryExecu
 import ca.dal.distributed.dpg1.Controllers.TransactionModule.Exceptions.TransactionExceptions;
 import ca.dal.distributed.dpg1.Controllers.UserInterfaceModule.Main.Login;
 import ca.dal.distributed.dpg1.Controllers.UserInterfaceModule.Main.Register;
+import ca.dal.distributed.dpg1.Utils.GlobalUtils;
 import ca.dal.distributed.dpg1.Utils.RemoteUtils;
 
 import java.io.FileNotFoundException;
@@ -80,7 +81,10 @@ public class DistributedDatabase {
                                     break;
                                 // Export Query Function
                                 case 2:
-                                    System.out.println("\nExport Function Exectution");
+                                    System.out.println("\nEnter Database Name to generate dump");
+                                    String dbName = c.nextLine();
+                                    ExportData export = new ExportData(dbName);
+                                    export.exportToFile();
                                     break;
                                 // ERD Function
                                 case 3:
