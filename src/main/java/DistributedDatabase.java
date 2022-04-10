@@ -5,6 +5,7 @@ import ca.dal.distributed.dpg1.Controllers.ExportModule.Main.ExportData;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Exceptions.QueryExecutionRuntimeException;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Exceptions.QueryParseFailureException;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryExecutor;
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Model.ExecutionResponse;
 import ca.dal.distributed.dpg1.Controllers.TransactionModule.Exceptions.TransactionExceptions;
 import ca.dal.distributed.dpg1.Controllers.UserInterfaceModule.Main.Login;
 import ca.dal.distributed.dpg1.Controllers.UserInterfaceModule.Main.Register;
@@ -33,19 +34,21 @@ public class DistributedDatabase {
             Login chk_login = new Login();
             Register reg = new Register();
             Scanner console = new Scanner(System.in);
+            Boolean queryStatus;
+
 
             System.out.println("*Hostname");
             System.out.println("Welcome");
-            int access_option = 0, db_option = 0;
+            String access_option = "0", db_option = "0";
 
-            while (access_option != 3) {
+            while (!access_option.equals("3")) {
                 System.out.println("Select one of the below options:");
                 System.out.println("\nEnter 1 for login");
                 System.out.println("\nEnter 2 for Register");
                 System.out.println("\nEnter 3 to Exit");
-                access_option = console.nextInt();
+                access_option = console.nextLine();
                 switch (access_option) {
-                    case 1:
+                    case "1":
                         System.out.println("\nEnter your name: ");
                         userName = c.nextLine();
                         System.out.println("\nEnter password: ");
@@ -62,54 +65,56 @@ public class DistributedDatabase {
                             System.out.println("\nInvalid Credentials");
                             break;
                         }
-                        while (db_option != 5) {
+                        while (!db_option.equals("5")) {
                             System.out.println("\nSelect one of the below options:");
                             System.out.println("\nEnter 1 for Write Queries");
                             System.out.println("\nEnter 2 for Export");
                             System.out.println("\nEnter 3 for Data Model");
                             System.out.println("\nEnter 4 for Analytics");
                             System.out.println("\nEnter 5 to Exit");
-                            db_option = console.nextInt();
+                            db_option = console.nextLine();
                             switch (db_option) {
                                 // Write Queries Function
-                                case 1:
+                                case "1":
                                     System.out.println(
                                             "\nEnter Query or Transaction, Enter x to Exit:");
-                                    // while (!Query.equals("x")) {
                                         Query = c.nextLine();
                                         if (!Query.equals("x")) {
                                             try{
-                                                executor.processInputQuery(Query);
-                                                System.out.println("\nQuery Successfully Executed");
+                                                ExecutionResponse er = executor.processInputQuery(Query);
+                                                if(er.isExecutionSuccess()){
+                                                    System.out.println("\nQuery Sucessfully Executed"+er.getExecutionResponseMsg());
+                                                }else{
+                                                    System.out.println("\n Something Went Wrong");
+                                                }
                                             }
                                             catch(Exception e)
                                             {
                                                 System.out.println(e.getMessage());
                                             }                                         
                                         }
-                                    // }
                                     Query="temp";
                                     break;
                                 // Export Query Function
-                                case 2:
+                                case "2":
                                     System.out.println("\nEnter Database Name to generate dump");
                                     String dbName = c.nextLine();
                                     ExportData export = new ExportData(dbName);
                                     export.exportToFile();
                                     break;
                                 // ERD Function
-                                case 3:
+                                case "3":
                                     System.out.println("\nEnter Database Name to generate ERD");
                                     Query = c.nextLine();
                                     System.out.println("\nERD:");
                                     erdGenerator.generateERD(Query);
                                     break;
                                 // Analytics Function
-                                case 4:
+                                case "4":
                                     System.out.println("\nAnalytics Function Exectution");
                                     break;
                                 // Exit
-                                case 5:
+                                case "5":
                                     System.out.println("\nExiting......");
                                     break;
                                 default:
@@ -118,7 +123,7 @@ public class DistributedDatabase {
                             System.out.print("\n");
                         }
                         break;
-                    case 2:
+                    case "2":
                         System.out.println("\nset your name: ");
                         userName = c.nextLine();
                         System.out.println("\nset your password: ");
@@ -148,7 +153,7 @@ public class DistributedDatabase {
                         reg.setRegister(userName, pass, securityAnswer);
                         System.out.println("\nSucessfully Registered, Please Login now...");
                         break;
-                    case 3:
+                    case "3":
                         System.out.println("\nExiting......");
                         break;
                     default:

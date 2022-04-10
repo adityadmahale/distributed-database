@@ -30,5 +30,10 @@ public class ExecutionResponse {
 
     public boolean isExecutionSuccess() {
         return isExecutionSuccess;
+        
+    }
+
+    public String getExecutionResponseMsg(){
+        return executionResponseMsg;
     }
 }
