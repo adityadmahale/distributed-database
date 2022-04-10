@@ -1,7 +1,6 @@
 package ca.dal.distributed.dpg1.Utils;
 
-import java.io.File;
-import java.io.FilenameFilter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -66,5 +65,105 @@ public final class GlobalUtils {
         abstractDirPath.delete();
 
         return true;
+    }
+
+    public static boolean writeToGlobalMetaData(String databaseName, String ip) {
+
+        try {
+
+            FileWriter fileWriter = new FileWriter(new File(GlobalConstants.DB_PATH + "global_metadata" + GlobalConstants.EXTENSION_DOT_TXT), true);
+            String stringBuilder = databaseName + GlobalConstants.STRING_AT_THE_RATE + ip + GlobalConstants.STRING_NEXT_LINE;
+            fileWriter.append(stringBuilder);
+            fileWriter.close();
+
+            return true;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean isDatabasePresent(String databaseName) {
+        try (BufferedReader metaReader = new BufferedReader(new FileReader(GlobalConstants.DB_PATH + "global_metadata" + GlobalConstants.EXTENSION_DOT_TXT))) {
+            String row;
+            String[] information;
+            String db;
+            while ((row = metaReader.readLine()) != null) {
+                if (row.contains(GlobalConstants.STRING_AT_THE_RATE)) {
+                    information = row.split(GlobalConstants.STRING_AT_THE_RATE);
+                    db = information[0];
+                    if (db.equals(databaseName)) {
+                        return true;
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean isDatabasePresentRemotely(String databaseName) {
+        String remoteIp = RemoteUtils.getRemoteHostIp();
+        try (BufferedReader metaReader = new BufferedReader(new FileReader(GlobalConstants.DB_PATH + "global_metadata" + GlobalConstants.EXTENSION_DOT_TXT))) {
+            String row;
+            String[] information;
+            String db;
+            String ip;
+            while ((row = metaReader.readLine()) != null) {
+                if (row.contains(GlobalConstants.STRING_AT_THE_RATE)) {
+                    information = row.split(GlobalConstants.STRING_AT_THE_RATE);
+                    db = information[0];
+                    ip = information[1];
+                    if (db.equals(databaseName) && remoteIp.equals(ip)) {
+                        return true;
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static List<String> getDatabaseNames() {
+        List<String> databaseNames = new ArrayList<>();
+        try (BufferedReader metaReader = new BufferedReader(new FileReader(GlobalConstants.DB_PATH + "global_metadata" + GlobalConstants.EXTENSION_DOT_TXT))) {
+            String row;
+            String[] information;
+            while ((row = metaReader.readLine()) != null) {
+                if (row.contains(GlobalConstants.STRING_AT_THE_RATE)) {
+                    information = row.split(GlobalConstants.STRING_AT_THE_RATE);
+                    databaseNames.add(information[0]);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return databaseNames;
+    }
+
+    public static List<String> getTableNames(String databaseName) {
+        List<String> tableNames = new ArrayList<>();
+        try (BufferedReader metaReader = new BufferedReader(new FileReader(GlobalConstants.DB_PATH + databaseName + "/local_metadata" + GlobalConstants.EXTENSION_DOT_TXT))) {
+            String row;
+            while ((row = metaReader.readLine()) != null) {
+                if (!row.equals("")) {
+                    tableNames.add(row);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return tableNames;
     }
 }
