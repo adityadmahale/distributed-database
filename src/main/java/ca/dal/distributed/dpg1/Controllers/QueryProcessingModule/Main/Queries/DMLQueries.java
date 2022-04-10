@@ -37,11 +37,12 @@ public class DMLQueries {
         final Instant queryStartTime = Instant.now();
         final String tableName = preprocessing(query);
 
-        final String databasePath = GlobalConstants.DB_PATH + FORWARD_SLASH + QueryManager.dataBaseInUse;
+        //Bugfix
+        final String databasePath = GlobalConstants.DB_PATH + QueryManager.dataBaseInUse;
         final File database = new File(databasePath);
         checkIfDatabaseExists(queryStartTime, database);
 
-        final String absoluteTablePath = GlobalConstants.DB_PATH + QueryManager.dataBaseInUse + FORWARD_SLASH;
+        final String absoluteTablePath = DB_PATH + QueryManager.dataBaseInUse + FORWARD_SLASH;
         final File[] allTablesInDB = GlobalUtils.readAllTables(absoluteTablePath);
         checkIfDatabaseHasTables(queryStartTime, allTablesInDB);
 
