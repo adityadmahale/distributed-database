@@ -1,6 +1,5 @@
 package ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main;
 
-import ca.dal.distributed.dpg1.Controllers.TransactionModule.Utils.TransactionConstants;
 import ca.dal.distributed.dpg1.Utils.GlobalConstants;
 
 /**
@@ -20,7 +19,7 @@ public class QueryManager {
      *
      * @return the boolean
      */
-    public static boolean isdataBaseInUse() {
+    public static boolean isDataBaseInUse() {
         return dataBaseInUse != null && !dataBaseInUse.isEmpty();
     }
 

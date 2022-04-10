@@ -6,6 +6,7 @@ import ca.dal.distributed.dpg1.Controllers.LoggerModule.Main.LoggerFactory;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Exceptions.QueryExecutionRuntimeException;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryManager;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Model.ExecutionResponse;
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.DatabaseConstants;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.LoggerMessages;
 import ca.dal.distributed.dpg1.Controllers.TransactionModule.Exceptions.TransactionExceptions;
 import ca.dal.distributed.dpg1.Utils.GlobalConstants;
@@ -20,6 +21,7 @@ import java.time.Instant;
 
 import static ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryManager.changeDBPath;
 import static ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryManager.isTransactionActive;
+import static ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.DatabaseConstants.FORWARD_SLASH;
 
 public class TransactionQueries {
 
@@ -35,16 +37,18 @@ public class TransactionQueries {
      */
 
     public ExecutionResponse startTransaction() throws TransactionExceptions {
-        String currentDBPath = GlobalConstants.CURRENT_DB_PATH + QueryManager.dataBaseInUse + "/";
-        String cacheDBPath = GlobalConstants.CACHE_DB_PATH + "/" + QueryManager.dataBaseInUse + "/";
-        if (!QueryManager.isdataBaseInUse()) {
+        String currentDBPath = GlobalConstants.CURRENT_DB_PATH + QueryManager.dataBaseInUse + FORWARD_SLASH;
+        String cacheDBPath = GlobalConstants.CACHE_DB_PATH + FORWARD_SLASH + QueryManager.dataBaseInUse + FORWARD_SLASH;
+        if (!QueryManager.isDataBaseInUse()) {
 
             throw new TransactionExceptions(LoggerMessages.noDatabaseSelected(Instant.now()));
         }
         File cacheDB = new File(cacheDBPath);
 
-        //@author Ankush Mudgal - BugFix for Cache DB Deletion Error.
-        GlobalUtils.deleteExistingDatabase(cacheDB);
+        //@author Ankush Mudgal - BugFix for Cache DB Deletion Error: Deletes the directory in cache if it already exists.
+        if(cacheDB.isDirectory()){
+            GlobalUtils.deleteExistingDatabase(cacheDB);
+        }
         if (cacheDB.mkdir()) {
             File dbFolder = new File(currentDBPath);
             //Copying all the tables to a cache
@@ -85,14 +89,14 @@ public class TransactionQueries {
             throw new QueryExecutionRuntimeException(LoggerMessages.transactionFailedToStart(Instant.now(), QueryManager.dataBaseInUse));
         }
         String cache_dbpath = GlobalConstants.DB_PATH;
-        cache_dbpath = cache_dbpath.concat("/" + QueryManager.dataBaseInUse + "/");
+        cache_dbpath = cache_dbpath.concat(FORWARD_SLASH + QueryManager.dataBaseInUse + FORWARD_SLASH);
         File cacheDB = new File(cache_dbpath);
         if (!cacheDB.isDirectory()) {
 
             changeDBPath(false);
             throw new TransactionExceptions(LoggerMessages.dataBaseDoesNotExist(Instant.now(), QueryManager.dataBaseInUse));
         }
-        String currentDBPath = GlobalConstants.CURRENT_DB_PATH + "/" + QueryManager.dataBaseInUse + "/";
+        String currentDBPath = GlobalConstants.CURRENT_DB_PATH + FORWARD_SLASH + QueryManager.dataBaseInUse + FORWARD_SLASH;
         final File currentDB = new File(currentDBPath);
         if (!currentDB.isDirectory()) {
 
@@ -169,7 +173,7 @@ public class TransactionQueries {
         }
 
         String cacheDBPath = GlobalConstants.DB_PATH;
-        cacheDBPath = cacheDBPath.concat("/" + QueryManager.dataBaseInUse + "/");
+        cacheDBPath = cacheDBPath.concat(FORWARD_SLASH + QueryManager.dataBaseInUse + FORWARD_SLASH);
         File cacheDB = new File(cacheDBPath);
 
         if (!cacheDB.isDirectory()) {
