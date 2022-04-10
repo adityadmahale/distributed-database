@@ -5,6 +5,7 @@ import ca.dal.distributed.dpg1.Controllers.LoggerModule.Main.EventLogger;
 import ca.dal.distributed.dpg1.Controllers.LoggerModule.Main.GeneralLogger;
 import ca.dal.distributed.dpg1.Controllers.LoggerModule.Main.LoggerFactory;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Exceptions.QueryExecutionRuntimeException;
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryExecutor;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Model.ExecutionResponse;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryManager;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.DatabaseConstants;
@@ -94,26 +95,29 @@ public class DDLQueries {
         final String databaseName = preprocessing(query);
         final String dbPath = GlobalConstants.DB_PATH + databaseName;
         
-        final String databasePath = GlobalConstants.DB_PATH + databaseName;
-        final File database = new File(databasePath);
-        final boolean isDatabaseExists = GlobalUtils.isDatabasePresent(databaseName);
-        
+        final File database = new File(dbPath);
+
+        //@author Ankush Mudgal - Logic for Remote DB Checking
+        final boolean checkIfDBExistsGlobally = GlobalUtils.isDatabasePresent(databaseName);
+        if(checkIfDBExistsGlobally){
+            QueryManager.dataBaseInUse = databaseName;
+        }
+
+        //@author Ankush Mudgal -  Commenting as part of Remote Integration : checkIfDatabaseExists(queryStartTime, database);
+
+        if(RemoteUtils.isDistributed() && GlobalUtils.isDatabasePresentRemotely(QueryManager.dataBaseInUse)){
+            String[] args = {RemoteConstants.COMMAND_REMOTE, RemoteConstants.COMMAND_EXECUTE_QUERY, QueryManager.dataBaseInUse, "\"" + query + "\"" };
+            RemoteUtils.executeInternalCommand(args);
+            MetaDataHandler.deleteFromGlobalMetaData(databaseName);
+            return new ExecutionResponse(true, LoggerMessages.dataBaseDropped(queryStartTime, databaseName) );
+        }
+
         //Apply Exclusive Resource Lock
         ResourceLockManager.applyExclusiveLock(databaseName, STRING_NULL);
         
         final File[] allTablesInDB = GlobalUtils.readAllTables(dbPath);
 
-        if (RemoteUtils.isDistributed() && GlobalUtils.isDatabasePresentRemotely(databaseName)) {
-            String[] args = {RemoteConstants.COMMAND_REMOTE, RemoteConstants.COMMAND_EXECUTE_QUERY, databaseName, "\"" + query + "\""};
-            RemoteUtils.executeInternalCommand(args);
-            MetaDataHandler.deleteFromGlobalMetaData(databaseName);
-            return null;
-        }
-
-        //Apply Exclusive ResourceLockManager
-        ResourceLockManager.applyExclusiveLock(databaseName, null);
-        final File[] allTables = database.listFiles();
-        if (allTables == null) {
+        if (allTablesInDB == null) {
 
             // Release Lock
             ResourceLockManager.releaseExclusiveLock(databaseName, STRING_NULL);
@@ -165,35 +169,24 @@ public class DDLQueries {
      * @throws QueryExecutionRuntimeException the query execution runtime exception
      */
     public ExecutionResponse useDatabase(final String query) throws QueryExecutionRuntimeException {
-        final Instant startTime = Instant.now();
-        final String queryProcessed = query.substring(0, query.length() - 1);
-        final String[] temporaryArray = queryProcessed.split(" ");
-        final String databaseName = temporaryArray[2];
-        final String databasePath = GlobalConstants.DB_PATH + databaseName;
-        final File database = new File(databasePath);
-        final boolean isDatabaseExists = GlobalUtils.isDatabasePresent(databaseName);
-        if (isDatabaseExists) {
-//            final File[] files = new File(GlobalConstants.DB_PATH).listFiles();
-//            if (files == null) {
-//
-//                throw new QueryExecutionRuntimeException(LoggerMessages.dataBaseUsageError(startTime, databaseName));
-//            }
-//            for (final File file : files) {
-//                if (file.getName().equalsIgnoreCase(databaseName)) {
-//                    QueryManager.dataBaseInUse = file.getName();
-//                }
-//            }
-            QueryManager.dataBaseInUse = databaseName;
 
         final Instant queryStartTime = Instant.now();
         final String databaseName = preprocessing(query);
         final String dbPath = GlobalConstants.DB_PATH + databaseName;
         
         final File database = new File(dbPath);
-        checkIfDatabaseExists(queryStartTime, database);
-            
-        final File[] databases = GlobalUtils.readAllTables(GlobalConstants.DB_PATH);
-        
+
+        //@author Ankush Mudgal - Logic for Remote DB Checking
+        final boolean checkIfDBExistsGlobally = GlobalUtils.isDatabasePresent(databaseName);
+        if(checkIfDBExistsGlobally){
+            QueryManager.dataBaseInUse = databaseName;
+        }
+
+        //@author Ankush Mudgal -  Commenting as part of Remote Integration : checkIfDatabaseExists(queryStartTime, database);
+
+        //@author Ankush Mudgal - Bugfix - Use failing due to readAlltables() being incompatible.
+        //Commneting DB assignment to make GLobal DB Lookup work instead.
+        /*final File[] databases = new File(DB_PATH).listFiles();
         if (databases == null) {
 
             throw new QueryExecutionRuntimeException(LoggerMessages.dataBaseUsageError(queryStartTime, databaseName));
@@ -204,7 +197,7 @@ public class DDLQueries {
                 QueryManager.dataBaseInUse = db.getName();
             }
         }
-
+*/
         return new ExecutionResponse(true, LoggerMessages.dataBaseUsageSuccessful(queryStartTime, databaseName));
     }
 
@@ -220,8 +213,14 @@ public class DDLQueries {
         
         final Instant queryStartTime = Instant.now();
         checkIfDataBaseSelected(queryStartTime);
-
         final String tableName = preprocessing(query);
+
+        if(RemoteUtils.isDistributed() && GlobalUtils.isDatabasePresentRemotely(QueryManager.dataBaseInUse)){
+            String[] args = {RemoteConstants.COMMAND_REMOTE, RemoteConstants.COMMAND_EXECUTE_QUERY, QueryManager.dataBaseInUse, "\"" + query + "\"" };
+            RemoteUtils.executeInternalCommand(args);
+            return new ExecutionResponse(true,LoggerMessages.dataBaseTableCreated(queryStartTime, tableName) );
+        }
+
         final File database = new File(ABSOLUTE_CURRENT_DB_PATH);
         checkIfDatabaseExists(queryStartTime, database);
         
@@ -229,20 +228,7 @@ public class DDLQueries {
         final File[] allTablesInDB = GlobalUtils.readAllTables(absoluteTablePath);
         checkIfDatabaseHasTables(queryStartTime, allTablesInDB);
 
-        String databaseName = QueryManager.dataBaseInUse;
-        if (RemoteUtils.isDistributed() && GlobalUtils.isDatabasePresentRemotely(databaseName)) {
-            String[] args = {RemoteConstants.COMMAND_REMOTE, RemoteConstants.COMMAND_EXECUTE_QUERY, databaseName, "\"" + query + "\""};
-            RemoteUtils.executeInternalCommand(args);
-            return null;
-        }
-
-        final String queryProcessed = query.substring(0, query.length() - 1);
-        final String[] temporaryArray = queryProcessed.split(" ");
-        final String tableName = temporaryArray[2];
-        final String databasePath = GlobalConstants.DB_PATH + QueryManager.dataBaseInUse;
-        final File database = new File(databasePath);
-        final boolean isDatabaseExists = database.isDirectory();
-        if (!isDatabaseExists) {
+        boolean checkTableExists = false;
 
         for (final File table : allTablesInDB) {
 
