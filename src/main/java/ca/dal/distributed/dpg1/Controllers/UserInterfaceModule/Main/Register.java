@@ -14,8 +14,7 @@ public class Register {
 
         FileWriter registerDetails = new FileWriter("User_Profile.txt", true);
         BufferedWriter bw = new BufferedWriter(registerDetails);
-        bw.newLine();
-        bw.write(encrypt.hash(userName)+" "+encrypt.hash(PassWord)+" "+encrypt.hash(securityAnswer));        
+        bw.write(encrypt.hash(userName)+" "+encrypt.hash(PassWord)+" "+encrypt.hash(securityAnswer) + "\n");        
         bw.close();
     }
 
