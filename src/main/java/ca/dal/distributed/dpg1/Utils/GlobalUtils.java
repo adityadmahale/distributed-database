@@ -33,6 +33,13 @@ public final class GlobalUtils {
         return allTables.listFiles();
     }
 
+    /**
+     * @author Ankush Mudgal
+     * Deletes an existing database in the system.
+     *
+     * @param abstractDirPath the abstract directory path
+     * @return the boolean
+     */
     public static boolean deleteExistingDatabase(final File abstractDirPath){
 
         File[] cacheDbTables = abstractDirPath.listFiles();
