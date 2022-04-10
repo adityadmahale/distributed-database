@@ -19,6 +19,8 @@ import ca.dal.distributed.dpg1.Controllers.LoggerModule.Main.GeneralLogger;
 import ca.dal.distributed.dpg1.Controllers.LoggerModule.Main.LoggerFactory;
 import ca.dal.distributed.dpg1.Utils.GlobalConstants;
 import ca.dal.distributed.dpg1.Utils.GlobalUtils;
+import ca.dal.distributed.dpg1.Utils.RemoteConstants;
+import ca.dal.distributed.dpg1.Utils.RemoteUtils;
 
 /**
  * @author Bharatwaaj Shankaranarayanan
@@ -44,9 +46,7 @@ public class ERDGenerator extends ERDGeneratorMain {
      * @description Helps in generating ERD Output file
      */
     private String getERDGeneratorOutputFile(final String databaseName) {
-        return ERDConstants.SQL_ERD_PATH + ERDConstants.SQL_ERD_FILE_PREFIX + databaseName
-                + GlobalConstants.STRING_UNDERSCORE
-                + System.currentTimeMillis() + GlobalConstants.EXTENSION_DOT_TXT;
+        return ERDConstants.SQL_ERD_PATH + ERDConstants.SQL_ERD_FILE_PREFIX + databaseName + GlobalConstants.EXTENSION_DOT_TXT;
     }
 
     /**
@@ -204,6 +204,12 @@ public class ERDGenerator extends ERDGeneratorMain {
         if (!Files.exists(Paths.get(databasePath))) {
             ERDUtils.handleERDError(databasePath, databaseName, ERDConstants.ERROR_MESSAGE_FAILED_TO_GENERATE_ERD,
                     ERDConstants.ERROR_CAUSE_MESSAGE_INVALID_DATABASE_NAME, eventLogger);
+        }
+        if (RemoteUtils.isDistributed() && GlobalUtils.isDatabasePresentRemotely(databaseName)) {
+            String[] args = {RemoteConstants.COMMAND_REMOTE, RemoteConstants.COMMAND_EXPORT_SQL, databaseName};
+            RemoteUtils.executeInternalCommand(args);
+            RemoteUtils.download(getERDGeneratorOutputFile(databaseName), ERDConstants.SQL_ERD_PATH + databaseName);
+            return false;
         }
         final File[] allTables = GlobalUtils.readAllTables(databasePath);
         createERD(allTables, databaseName);
