@@ -80,7 +80,7 @@ public class DistributedDatabase {
                                         if (!Query.equals("x")) {
                                             try{
                                                 executor.processInputQuery(Query);
-                                                System.out.println("\nQuery Sucessfully Executed");
+                                                System.out.println("\nQuery Successfully Executed");
                                             }
                                             catch(Exception e)
                                             {

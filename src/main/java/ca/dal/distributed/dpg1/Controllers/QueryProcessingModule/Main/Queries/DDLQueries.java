@@ -160,7 +160,7 @@ public class DDLQueries {
         final File database = new File(dbPath);
         checkIfDatabaseExists(queryStartTime, database);
             
-        final File[] databases = GlobalUtils.readAllTables(GlobalConstants.DB_PATH);
+        final File[] databases = new File(DB_PATH).listFiles();
         
         if (databases == null) {
 
