@@ -24,4 +24,6 @@ public class RemoteConstants {
     public static final String DELETE_FROM_GLOBAL_METADATA = "deleteGlobal";
     public static final String COMMAND_EXPORT_SQL = "exportSQL";
     public static final String DUMP_LOCATION = "outputs/dumps/";
+    public static final String COMMAND_GENERATE_ERD = "generate-erd";
+    public static final String SQL_ERD_PATH = "outputs/erds/";
 }

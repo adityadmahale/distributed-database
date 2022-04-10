@@ -1,6 +1,7 @@
 package ca.dal.distributed.dpg1.Utils;
 
 import ca.dal.distributed.dpg1.Controllers.AnalyticsModule.Utils.AnalyticsUpdate;
+import ca.dal.distributed.dpg1.Controllers.ERDModule.Main.ERDGenerator;
 import ca.dal.distributed.dpg1.Controllers.ExportModule.Main.ExportData;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryExecutor;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryManager;
@@ -163,6 +164,11 @@ public class RemoteUtils {
                     databaseName = args[1];
                     ExportData export = new ExportData(databaseName);
                     export.exportToFile();
+                    break;
+                case RemoteConstants.COMMAND_GENERATE_ERD:
+                    databaseName = args[1];
+                    ERDGenerator erdGenerator = new ERDGenerator();
+                    erdGenerator.generateERD(databaseName);
                     break;
             }
 
