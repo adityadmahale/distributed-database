@@ -6,7 +6,9 @@ package ca.dal.distributed.dpg1.Utils;
  */
 public class GlobalConstants {
 
+    /* Global Database & Query Processing Constants */
     public static final String DELIMITER = "|+|";
+    public static final String DELIMITER_ESCAPED = "\\|\\+\\|";
     public static final String CURRENT_DB_PATH = "db/";
     public static final String CACHE_DB_PATH = "./cache/";
     public static String DB_PATH = CURRENT_DB_PATH;
@@ -16,6 +18,7 @@ public class GlobalConstants {
     public static final String TABLE_NAME_DELIMITER = "\\.";
 
     public static final String COLUMN_NAME_DELIMITER = "\\(";
+    public static final String COLUMN_NAME_DELIMITER_CLOSE = "\\)";
     public static final String COLUMN_ATTRIBUTES_DELIMITER = "\\|";
     public static final String COLUMN_EMPTY_SPACE = " ";
 
@@ -34,10 +37,13 @@ public class GlobalConstants {
     public static final String STRING_HYPHEN = "-";
     public static final String STRING_PERIOD = ".";
     public static final String STRING_AT_THE_RATE = "@";
+    public static final String STRING_COMMA = ",";
+    public static final String STRING_NULL = null;
+    public static final String STRING_EMPTY = "";
 
     /* Extension Constants */
     public static final String EXTENSION_DOT_TXT = ".txt";
 
     public static final String ERROR_MESSAGE_INVALID_DB_PATH = "Invalid database path or database does not exist.";
-    public static final String STRING_NULL = null;
+
 }
