@@ -1,12 +1,13 @@
 package ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main;
 
+import ca.dal.distributed.dpg1.Controllers.TransactionModule.Exceptions.TransactionExceptions;
 import com.sun.security.jgss.GSSUtil;
 
 import java.nio.file.Files;
 
 public class Test {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws TransactionExceptions {
 
         QueryExecutor executor = new QueryExecutor();
         //executor.processInputQuery("CREATE DATABASE testDB;");

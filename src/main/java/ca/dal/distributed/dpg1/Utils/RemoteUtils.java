@@ -1,8 +1,11 @@
 package ca.dal.distributed.dpg1.Utils;
 
 import ca.dal.distributed.dpg1.Controllers.AnalyticsModule.Utils.AnalyticsUpdate;
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryExecutor;
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.MetaDataHandler;
 import com.jcraft.jsch.*;
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 
 
 /**
@@ -123,8 +126,8 @@ public class RemoteUtils {
         try {
             // Executes remotely
             if (args[0].equals(RemoteConstants.COMMAND_REMOTE)) {
-                String type = args[1];
-                execute(RemoteConstants.REMOTE_COMMAND_PREFIX + type);
+                String command = RemoteConstants.REMOTE_COMMAND_PREFIX + String.join(" ", Arrays.copyOfRange(args,1, args.length));
+                execute(command);
             }
 
             // Executes locally
@@ -141,6 +144,13 @@ public class RemoteUtils {
                     String operation = args[2];
                     AnalyticsUpdate.incrementOperationCountData(databaseName, operation);
                     break;
+                case RemoteConstants.COMMAND_EXECUTE_QUERY:
+                    QueryExecutor executor = new QueryExecutor();
+                    executor.processInputQuery(args[1]);
+                case RemoteConstants.COMMAND_UPDATE_GLOBAL_METADATA:
+                    databaseName = args[1];
+                    String ip = args[2];
+                    GlobalUtils.writeToGlobalMetaData(databaseName, ip);
 //                case RemoteConstants.COMMAND_EXPORT_SQL:
 //                    // databaseName = args[1];
 //                    List<String> tables = new ArrayList<>();

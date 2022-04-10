@@ -2,6 +2,8 @@ package ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils;
 
 import ca.dal.distributed.dpg1.Utils.GlobalConstants;
 import ca.dal.distributed.dpg1.Utils.LocalUtils;
+import ca.dal.distributed.dpg1.Utils.RemoteConstants;
+import ca.dal.distributed.dpg1.Utils.RemoteUtils;
 
 import java.io.*;
 import java.util.*;
@@ -100,6 +102,11 @@ public class MetaDataHandler {
             String stringBuilder = databaseName + GlobalConstants.STRING_AT_THE_RATE + LocalUtils.getLocalHostIp() + GlobalConstants.STRING_NEXT_LINE;
             fileWriter.append(stringBuilder);
             fileWriter.close();
+
+            if (RemoteUtils.isDistributed()) {
+                String[] args = {"remote", RemoteConstants.COMMAND_UPDATE_GLOBAL_METADATA, databaseName, LocalUtils.getLocalHostIp()};
+                RemoteUtils.executeInternalCommand(args);
+            }
 
             return true;
 
