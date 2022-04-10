@@ -30,9 +30,30 @@ public final class GlobalUtils {
      * @author Bharatwaaj Shankaranarayanan
      * @description Reads all tables from the specified database path
      */
+    /**
+     * @author Bharatwaaj Shankaranarayanan
+     * @description Reads all tables from the specified database path
+     */
     public static File[] readAllTables(final String databasePath) {
-        final File allTables = new File(databasePath);
-        return allTables.listFiles();
+        final File allTableDirs = new File(databasePath);
+        List<File> results = new ArrayList();
+        String[] tableNameDirs = allTableDirs.list(new FilenameFilter() {
+            @Override
+            public boolean accept(File current, String name) {
+                return new File(current, name).isDirectory();
+            }
+        });
+        for(String tableName : tableNameDirs) {
+            final File tableNameFile = new File(databasePath + tableName);
+            File[] tableFiles = tableNameFile.listFiles();
+            for(File tableFile: tableFiles){
+                if(!tableFile.toString().contains(GlobalConstants.EXTENSION_METADATA_FILE)){
+                    results.add(tableFile);
+                }
+            }
+        }
+        System.out.println(results.toString());
+        return results.toArray(new File[0]);
     }
 
     public static boolean deleteExistingDatabase(final File abstractDirPath){
