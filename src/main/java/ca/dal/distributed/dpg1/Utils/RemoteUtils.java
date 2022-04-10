@@ -97,7 +97,7 @@ public class RemoteUtils {
      * @author Aditya Mahale
      * @description Get remote host IP
      */
-    private static String getRemoteHostIp() {
+    public static String getRemoteHostIp() {
         String ip = System.getenv(RemoteConstants.HOST_ENV_IP);
         if (ip == null) {
             throw new IllegalStateException(RemoteConstants.ERROR_ENV_VARIABLE + RemoteConstants.HOST_ENV_IP);

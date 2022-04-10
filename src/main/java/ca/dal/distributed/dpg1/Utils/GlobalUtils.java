@@ -1,8 +1,6 @@
 package ca.dal.distributed.dpg1.Utils;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.regex.Pattern;
 
 /**
@@ -57,6 +55,53 @@ public final class GlobalUtils {
 
             return true;
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean isDatabasePresent(String databaseName) {
+        try (BufferedReader metaReader = new BufferedReader(new FileReader(GlobalConstants.DB_PATH + "global_metadata" + GlobalConstants.EXTENSION_DOT_TXT))) {
+            String row;
+            String[] information;
+            String db;
+            while ((row = metaReader.readLine()) != null) {
+                if (row.contains(GlobalConstants.STRING_AT_THE_RATE)) {
+                    information = row.split(GlobalConstants.STRING_AT_THE_RATE);
+                    db = information[0];
+                    if (db.equals(databaseName)) {
+                        return true;
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean isDatabasePresentRemotely(String databaseName) {
+        String remoteIp = RemoteUtils.getRemoteHostIp();
+        try (BufferedReader metaReader = new BufferedReader(new FileReader(GlobalConstants.DB_PATH + "global_metadata" + GlobalConstants.EXTENSION_DOT_TXT))) {
+            String row;
+            String[] information;
+            String db;
+            String ip;
+            while ((row = metaReader.readLine()) != null) {
+                if (row.contains(GlobalConstants.STRING_AT_THE_RATE)) {
+                    information = row.split(GlobalConstants.STRING_AT_THE_RATE);
+                    db = information[0];
+                    ip = information[1];
+                    if (db.equals(databaseName) && remoteIp.equals(ip)) {
+                        return true;
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
