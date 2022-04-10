@@ -33,6 +33,7 @@ public class GlobalConstants {
     public static final String STRING_ARROW_SEPARATOR = " -> ";
     public static final String STRING_HYPHEN = "-";
     public static final String STRING_PERIOD = ".";
+    public static final String STRING_AT_THE_RATE = "@";
 
     /* Extension Constants */
     public static final String EXTENSION_DOT_TXT = ".txt";

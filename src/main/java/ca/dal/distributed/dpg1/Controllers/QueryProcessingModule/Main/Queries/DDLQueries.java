@@ -5,6 +5,7 @@ import ca.dal.distributed.dpg1.Controllers.LoggerModule.Main.GeneralLogger;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Exceptions.QueryExecutionRuntimeException;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Model.ExecutionResponse;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryManager;
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.MetaDataWriter;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.ResourceLockManager;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.LoggerMessages;
 import ca.dal.distributed.dpg1.Utils.GlobalConstants;
@@ -47,6 +48,13 @@ public class DDLQueries {
         ResourceLockManager.releaseExclusiveLock(databaseName, null);
 
         if (isNewDirectoryCreated) {
+
+                //@author Ankush Mudgal - Writes Database to Global Metadata Metadata file.
+            final boolean isGlobalMetaDataUpdated = MetaDataWriter.writeToGlobalMetaData(databaseName);
+            if(isGlobalMetaDataUpdated){
+                generalLogger.logData("Database " + databaseName + "added to global metadata file.");
+            }
+
             return new ExecutionResponse(true, LoggerMessages.dataBaseCreated(startTime, databaseName));
         } else {
 
@@ -164,7 +172,14 @@ public class DDLQueries {
         }
         final ExecutionResponse createdTableResponse = createTableWithColumnsUtility(queryProcessed, tableName, tablePath + tableName + GlobalConstants.EXTENSION_DOT_TXT);
 
-        //todo: Add to Metadata here.
+        //@author Ankush Mudgal - Writes Table Metadata to the Local Metadata file.
+        if(createdTableResponse.isExecutionSuccess()){
+
+            final boolean isMetadataUpdated = MetaDataWriter.writeToDBLocalMetaData(tableName, tablePath);
+            if(isMetadataUpdated){
+                generalLogger.logData("Added new table " + tableName + " to local metadata for the Database " + QueryManager.dataBaseInUse);
+            }
+        }
 
         return createdTableResponse;
     }
