@@ -13,6 +13,8 @@ import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.ResourceL
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.LoggerMessages;
 import ca.dal.distributed.dpg1.Utils.GlobalConstants;
 import ca.dal.distributed.dpg1.Utils.GlobalUtils;
+import ca.dal.distributed.dpg1.Utils.RemoteConstants;
+import ca.dal.distributed.dpg1.Utils.RemoteUtils;
 
 import java.io.*;
 import java.time.Instant;
@@ -92,15 +94,26 @@ public class DDLQueries {
         final String databaseName = preprocessing(query);
         final String dbPath = GlobalConstants.DB_PATH + databaseName;
         
-        final File database = new File(dbPath);
-        checkIfDatabaseExists(queryStartTime, database);
+        final String databasePath = GlobalConstants.DB_PATH + databaseName;
+        final File database = new File(databasePath);
+        final boolean isDatabaseExists = GlobalUtils.isDatabasePresent(databaseName);
         
         //Apply Exclusive Resource Lock
         ResourceLockManager.applyExclusiveLock(databaseName, STRING_NULL);
         
         final File[] allTablesInDB = GlobalUtils.readAllTables(dbPath);
 
-        if (allTablesInDB == null) {
+        if (RemoteUtils.isDistributed() && GlobalUtils.isDatabasePresentRemotely(databaseName)) {
+            String[] args = {RemoteConstants.COMMAND_REMOTE, RemoteConstants.COMMAND_EXECUTE_QUERY, databaseName, "\"" + query + "\""};
+            RemoteUtils.executeInternalCommand(args);
+            MetaDataHandler.deleteFromGlobalMetaData(databaseName);
+            return null;
+        }
+
+        //Apply Exclusive ResourceLockManager
+        ResourceLockManager.applyExclusiveLock(databaseName, null);
+        final File[] allTables = database.listFiles();
+        if (allTables == null) {
 
             // Release Lock
             ResourceLockManager.releaseExclusiveLock(databaseName, STRING_NULL);
@@ -152,6 +165,25 @@ public class DDLQueries {
      * @throws QueryExecutionRuntimeException the query execution runtime exception
      */
     public ExecutionResponse useDatabase(final String query) throws QueryExecutionRuntimeException {
+        final Instant startTime = Instant.now();
+        final String queryProcessed = query.substring(0, query.length() - 1);
+        final String[] temporaryArray = queryProcessed.split(" ");
+        final String databaseName = temporaryArray[2];
+        final String databasePath = GlobalConstants.DB_PATH + databaseName;
+        final File database = new File(databasePath);
+        final boolean isDatabaseExists = GlobalUtils.isDatabasePresent(databaseName);
+        if (isDatabaseExists) {
+//            final File[] files = new File(GlobalConstants.DB_PATH).listFiles();
+//            if (files == null) {
+//
+//                throw new QueryExecutionRuntimeException(LoggerMessages.dataBaseUsageError(startTime, databaseName));
+//            }
+//            for (final File file : files) {
+//                if (file.getName().equalsIgnoreCase(databaseName)) {
+//                    QueryManager.dataBaseInUse = file.getName();
+//                }
+//            }
+            QueryManager.dataBaseInUse = databaseName;
 
         final Instant queryStartTime = Instant.now();
         final String databaseName = preprocessing(query);
@@ -197,7 +229,20 @@ public class DDLQueries {
         final File[] allTablesInDB = GlobalUtils.readAllTables(absoluteTablePath);
         checkIfDatabaseHasTables(queryStartTime, allTablesInDB);
 
-        boolean checkTableExists = false;
+        String databaseName = QueryManager.dataBaseInUse;
+        if (RemoteUtils.isDistributed() && GlobalUtils.isDatabasePresentRemotely(databaseName)) {
+            String[] args = {RemoteConstants.COMMAND_REMOTE, RemoteConstants.COMMAND_EXECUTE_QUERY, databaseName, "\"" + query + "\""};
+            RemoteUtils.executeInternalCommand(args);
+            return null;
+        }
+
+        final String queryProcessed = query.substring(0, query.length() - 1);
+        final String[] temporaryArray = queryProcessed.split(" ");
+        final String tableName = temporaryArray[2];
+        final String databasePath = GlobalConstants.DB_PATH + QueryManager.dataBaseInUse;
+        final File database = new File(databasePath);
+        final boolean isDatabaseExists = database.isDirectory();
+        if (!isDatabaseExists) {
 
         for (final File table : allTablesInDB) {
 

@@ -3,6 +3,7 @@ package ca.dal.distributed.dpg1.Utils;
 import ca.dal.distributed.dpg1.Controllers.AnalyticsModule.Utils.AnalyticsUpdate;
 import ca.dal.distributed.dpg1.Controllers.ExportModule.Main.ExportData;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryExecutor;
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryManager;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.MetaDataHandler;
 import com.jcraft.jsch.*;
 import java.io.ByteArrayOutputStream;
@@ -147,11 +148,17 @@ public class RemoteUtils {
                     break;
                 case RemoteConstants.COMMAND_EXECUTE_QUERY:
                     QueryExecutor executor = new QueryExecutor();
-                    executor.processInputQuery(args[1]);
+                    databaseName = args[1];
+                    String query = args[2];
+                    GlobalUtils.useDatabase(databaseName);
+                    executor.processInputQuery(query);
                 case RemoteConstants.COMMAND_UPDATE_GLOBAL_METADATA:
                     databaseName = args[1];
                     String ip = args[2];
                     GlobalUtils.writeToGlobalMetaData(databaseName, ip);
+                case RemoteConstants.DELETE_FROM_GLOBAL_METADATA:
+                    databaseName = args[1];
+                    MetaDataHandler.deleteFromGlobalMetaData(databaseName);
                 case RemoteConstants.COMMAND_EXPORT_SQL:
                     databaseName = args[1];
                     ExportData export = new ExportData(databaseName);
