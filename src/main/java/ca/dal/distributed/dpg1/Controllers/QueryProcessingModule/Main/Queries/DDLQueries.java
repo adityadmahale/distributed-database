@@ -20,46 +20,28 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.DatabaseConstants.*;
+import static ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.QueryProcessingUtil.*;
 import static ca.dal.distributed.dpg1.Utils.GlobalConstants.*;
 
 
+/**
+ * @author Ankush Mudgal
+ * DDL Queries - Class to process and execute SQL DDL Queries.
+ */
 public class DDLQueries {
 
+    //Loggers
     private static final EventLogger eventLogger = (EventLogger) new LoggerFactory().getLogger(LoggerType.EVENT_LOGGER);
     private static final GeneralLogger generalLogger  = (GeneralLogger) new LoggerFactory().getLogger(LoggerType.GENERAL_LOGGER);
 
-
-    private static String preprocessing(String query) {
-
-        final String queryProcessed = query.substring(0, query.length() - 1);
-        final String[] querySplitArray = queryProcessed.split(" ");
-        final String databaseOrTableName = querySplitArray[2];
-
-        return databaseOrTableName;
-
-    }
-
-    private static void checkIfDataBaseSelected(Instant queryStartTime) {
-        
-        if (!QueryManager.isDataBaseInUse()) {
-            throw new QueryExecutionRuntimeException(LoggerMessages.noDatabaseSelected(queryStartTime));
-        }
-    }
-    
-    private static void checkIfDatabaseExists( Instant queryStartTime, File databaseName){
-        
-        if (!databaseName.isDirectory()) {
-            throw new QueryExecutionRuntimeException(LoggerMessages.dataBaseDoesNotExist(queryStartTime, databaseName.toString()));
-        }
-    }
-
-    private static void checkIfDatabaseHasTables (Instant queryStartTime , File[] allTablesInDb){
-
-        if (allTablesInDb == null) {
-            throw new QueryExecutionRuntimeException(LoggerMessages.unknownError(queryStartTime));
-        }
-    }
-
+    /**
+     * @author Ankush Mudgal
+     * Method executes Create Database SQL Query.
+     *
+     * @param query the query
+     * @return the execution response
+     * @throws QueryExecutionRuntimeException the query execution runtime exception
+     */
     public ExecutionResponse createDatabase (String query) throws QueryExecutionRuntimeException {
 
         final Instant queryStartTime = Instant.now();
@@ -96,6 +78,14 @@ public class DDLQueries {
         }
     }
 
+    /**
+     * @author Ankush Mudgal
+     * Method executes the Drop database SQL query.
+     *
+     * @param query the query
+     * @return the execution response
+     * @throws QueryExecutionRuntimeException the query execution runtime exception
+     */
     public ExecutionResponse dropDatabase(String query) throws QueryExecutionRuntimeException {
         
         final Instant queryStartTime = Instant.now();
@@ -153,6 +143,14 @@ public class DDLQueries {
         }
     }
 
+    /**
+     * @author Ankush Mudgal
+     * Method executes Use database SQL command. It updates the value of currently selected database on the @QueryManager Class.
+     *
+     * @param query the query
+     * @return the execution response
+     * @throws QueryExecutionRuntimeException the query execution runtime exception
+     */
     public ExecutionResponse useDatabase(final String query) throws QueryExecutionRuntimeException {
 
         final Instant queryStartTime = Instant.now();
@@ -178,16 +176,24 @@ public class DDLQueries {
         return new ExecutionResponse(true, LoggerMessages.dataBaseUsageSuccessful(queryStartTime, databaseName));
     }
 
+    /**
+     * @author Ankush Mudgal
+     * Method executes the Create table SQL query.
+     *
+     * @param query the query
+     * @return the execution response
+     * @throws QueryExecutionRuntimeException the query execution runtime exception
+     */
     public ExecutionResponse createTable(final String query) throws QueryExecutionRuntimeException {
         
         final Instant queryStartTime = Instant.now();
         checkIfDataBaseSelected(queryStartTime);
 
         final String tableName = preprocessing(query);
-        final File database = new File(DatabaseConstants.ABSOLUTE_CURRENT_DB_PATH);
+        final File database = new File(ABSOLUTE_CURRENT_DB_PATH);
         checkIfDatabaseExists(queryStartTime, database);
         
-        final String absoluteTablePath = DatabaseConstants.ABSOLUTE_CURRENT_DB_PATH + FORWARD_SLASH;
+        final String absoluteTablePath = ABSOLUTE_CURRENT_DB_PATH + FORWARD_SLASH;
         final File[] allTablesInDB = GlobalUtils.readAllTables(absoluteTablePath);
         checkIfDatabaseHasTables(queryStartTime, allTablesInDB);
 
@@ -220,6 +226,16 @@ public class DDLQueries {
     }
 
 
+    /**
+     * @author Ankush Mudgal
+     * Creates a table with given columns.
+     *
+     * @param query     the query
+     * @param tableName the table name
+     * @param tablePath the table path
+     * @return the execution response
+     * @throws QueryExecutionRuntimeException the query execution runtime exception
+     */
     private ExecutionResponse createTableWithColumnsUtility(final String query, final String tableName, final String tablePath) throws QueryExecutionRuntimeException {
 
         final Instant queryStartTime = Instant.now();
@@ -300,6 +316,14 @@ public class DDLQueries {
         }
     }
 
+    /**
+     * @author Ankush Mudgal
+     * Method executes Truncate table Sql Query.
+     *
+     * @param query the query
+     * @return the execution response
+     * @throws QueryExecutionRuntimeException the query execution runtime exception
+     */
     public ExecutionResponse truncateTable(final String query) throws QueryExecutionRuntimeException {
         
         final Instant queryStartTime = Instant.now();
@@ -329,7 +353,7 @@ public class DDLQueries {
         // Apply Exclusive Lock
         ResourceLockManager.applyExclusiveLock(QueryManager.dataBaseInUse, tableName);
 
-        final String absoluteTablePath = DatabaseConstants.ABSOLUTE_CURRENT_DB_PATH + FORWARD_SLASH + tableName + GlobalConstants.EXTENSION_DOT_TXT;
+        final String absoluteTablePath = ABSOLUTE_CURRENT_DB_PATH + FORWARD_SLASH + tableName + GlobalConstants.EXTENSION_DOT_TXT;
 
         try (final BufferedReader bufferedReader = new BufferedReader(new FileReader(absoluteTablePath))) {
 
@@ -357,6 +381,14 @@ public class DDLQueries {
         return new ExecutionResponse(true, "Table " + tableName + " truncated successfully.");
     }
 
+    /**
+     * @author Ankush Mudgal
+     * Method executes Drop table SQL query.
+     *
+     * @param query the query
+     * @return the execution response
+     * @throws QueryExecutionRuntimeException the query execution runtime exception
+     */
     public ExecutionResponse dropTable(final String query) throws QueryExecutionRuntimeException {
         
         final Instant queryStartTime = Instant.now();

@@ -2,12 +2,14 @@ package ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils;
 
 import ca.dal.distributed.dpg1.Controllers.LoggerModule.Main.EventLogger;
 import ca.dal.distributed.dpg1.Controllers.LoggerModule.Main.GeneralLogger;
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryManager;
+
 import java.time.Duration;
 import java.time.Instant;
 import static ca.dal.distributed.dpg1.Utils.GlobalConstants.STRING_PIPE_SEPARATOR;
 
 /**
- * @author Ankush Mudgal
+ * @author Ankush Mudgal 
  * Logger Messages - Has the methods to log the relevant messages during the Query Execution process.
  */
 public class LoggerMessages {
@@ -266,22 +268,6 @@ public class LoggerMessages {
         return message;
     }
 
-
-    /**
-     * @author Ankush Mudgal
-     * Truncate table failed during execution..
-     *
-     * @param startTime the start time
-     * @param tableName the table name
-     * @return log message
-     */
-    public static String truncateTableFailed(Instant startTime, String tableName){
-
-        final String message = "Error Occurred: Table " + tableName + " could not be truncated. " + getQueryExecutionDuration(startTime, Instant.now());
-        eventLogger.logData(message);
-        return message;
-    }
-
     /**
      * @author Ankush Mudgal
      * Transaction started.
@@ -357,4 +343,111 @@ public class LoggerMessages {
         return message;
     }
 
+
+
+    /**
+     * @author Ankush Mudgal
+     * Truncate table failed during execution..
+     *
+     * @param startTime the start time
+     * @param tableName the table name
+     * @return log message
+     */
+    public static String truncateTableFailed(Instant startTime, String tableName){
+
+        final String message = "Error Occurred: Table " + tableName + " could not be truncated. " + getQueryExecutionDuration(startTime, Instant.now());
+        eventLogger.logData(message);
+        return message;
+    }
+
+
+    /**
+     * @author Ankush Mudgal
+     * Column mapping failed.
+     *
+     * @param startTime the start time
+     * @param tableName the table name
+     * @return log message
+     */
+    public static String columnMappingFailed(Instant startTime, String tableName){
+
+        final String message = "Number of columns and values do not match for " + tableName + getQueryExecutionDuration(startTime, Instant.now());;
+        generalLogger.logData(message);
+        return message;
+    }
+
+    /**
+     * @author Ankush Mudgal
+     * Column fields are not defined.
+     *
+     * @param startTime the start time
+     * @param tableName the table name
+     * @return log message
+     */
+    public static String columnFieldsNotDefined(Instant startTime, String tableName){
+
+        final String message = "Fields in the table are not defined for " + tableName + getQueryExecutionDuration(startTime, Instant.now());
+        generalLogger.logData(message);
+        return message;
+    }
+
+    /**
+     * @author Ankush Mudgal
+     * Column fields do not match.
+     * 
+     * @param startTime the start time
+     * @param tableName the table name
+     * @return log message
+     */
+    public static String columnFieldsDoNotMatch(Instant startTime, String tableName){
+
+        final String message = "Number of fields in the table do not match for " + tableName + getQueryExecutionDuration(startTime, Instant.now());
+        generalLogger.logData(message);
+        return message;
+    }
+
+
+    /**
+     * @author Ankush Mudgal
+     * Column sequence mapping failed.
+     *
+     * @param startTime the start time
+     * @param tableName the table name
+     * @return log message
+     */
+    public static String columnSequenceMappingFailed(Instant startTime, String tableName){
+
+        final String message = "Sequence of columns does not match for "+ tableName + getQueryExecutionDuration(startTime, Instant.now());
+        generalLogger.logData(message);
+        return message;
+    }
+
+    /**
+     * @author Ankush Mudgal
+     * Invalid data type for column.
+     *
+     * @param startTime the start time
+     * @param tableName the table name
+     * @return log message
+     */
+    public static String invalidDataTypeForColumn(Instant startTime, String tableName){
+
+        final String message = "Invalid data type set for column for table "+ tableName + getQueryExecutionDuration(startTime, Instant.now());
+        generalLogger.logData(message);
+        return message;
+    }
+
+    /**
+     * @author Ankush Mudgal
+     * Data read successful for a table & database.
+     *
+     * @param startTime the start time
+     * @param tableName the table name
+     */
+    public static void dataReadSuccessful(Instant startTime, String tableName){
+
+        final String message = "Data read from database " + QueryManager.dataBaseInUse + " and the table " + tableName + " was successful." + getQueryExecutionDuration(startTime, Instant.now());
+        eventLogger.logData(message);
+        generalLogger.logData(message);
+    }
 }
