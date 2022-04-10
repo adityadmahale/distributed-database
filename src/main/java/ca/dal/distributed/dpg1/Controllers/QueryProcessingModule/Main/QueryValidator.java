@@ -143,6 +143,8 @@ public class QueryValidator {
             final boolean isValidCommitCommand = TransactionParser.parseCommitCommand(queryLowerCase);
             if (!isValidCommitCommand) {
                 throw new QueryParseFailureException("Invalid COMMIT Command entered by the User.");
+            } else {
+                return true;
             }
         }
 

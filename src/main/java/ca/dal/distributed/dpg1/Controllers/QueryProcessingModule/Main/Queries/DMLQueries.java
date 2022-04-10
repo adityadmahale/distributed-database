@@ -5,8 +5,10 @@ import ca.dal.distributed.dpg1.Controllers.LoggerModule.Main.GeneralLogger;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Exceptions.QueryExecutionRuntimeException;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Model.ExecutionResponse;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryManager;
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.DatabaseConstants;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.ResourceLockManager;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.LoggerMessages;
+import ca.dal.distributed.dpg1.Utils.GlobalConstants;
 
 import java.io.*;
 import java.time.Instant;
@@ -30,13 +32,13 @@ public class DMLQueries {
         final String queryProcessed = query.substring(0, query.length() - 1);
         final String[] temporaryArray = queryProcessed.split(" ");
         final String tableName = temporaryArray[2];
-        final String databasePath = DATABASE_PATH_IN_USE + QueryManager.dataBaseInUse;
+        final String databasePath = GlobalConstants.DB_PATH + DatabaseConstants.FORWARD_SLASH + QueryManager.dataBaseInUse;
         final File database = new File(databasePath);
         final boolean isDatabaseExists = database.isDirectory();
         if (!isDatabaseExists) {
             throw new QueryExecutionRuntimeException(LoggerMessages.dataBaseDoesNotExist(Instant.now(), QueryManager.dataBaseInUse));
         }
-        final String tablePath = DATABASE_PATH_IN_USE + QueryManager.dataBaseInUse + FORWARD_SLASH;
+        final String tablePath = GlobalConstants.DB_PATH + QueryManager.dataBaseInUse + FORWARD_SLASH;
         final File allTablesPath = new File(tablePath);
         final File[] allTables = allTablesPath.listFiles();
         if (allTables == null) {
@@ -162,14 +164,14 @@ public class DMLQueries {
         final String queryProcessed = query.substring(0, query.length() - 1);
         final String[] temporaryArray = queryProcessed.split(" ");
         final String tableName = temporaryArray[3];
-        final String databasePath = DATABASE_PATH_IN_USE + QueryManager.dataBaseInUse;
+        final String databasePath = GlobalConstants.DB_PATH + QueryManager.dataBaseInUse;
         final File database = new File(databasePath);
         final boolean isDatabaseExists = database.isDirectory();
         if (!isDatabaseExists) {
 
             throw new QueryExecutionRuntimeException(LoggerMessages.dataBaseDoesNotExist(startTime, QueryManager.dataBaseInUse));
         }
-        final String tablePath = DATABASE_PATH_IN_USE + QueryManager.dataBaseInUse + FORWARD_SLASH;
+        final String tablePath = GlobalConstants.DB_PATH + QueryManager.dataBaseInUse + FORWARD_SLASH;
         final File allTablesPath = new File(tablePath);
         final File[] allTables = allTablesPath.listFiles();
         if (allTables == null) {
@@ -228,14 +230,14 @@ public class DMLQueries {
         final String queryProcessed = query.substring(0, query.length() - 1);
         final String[] temporaryArray = queryProcessed.split(" ");
         final String tableName = temporaryArray[4];
-        final String databasePath = DATABASE_PATH_IN_USE + QueryManager.dataBaseInUse;
+        final String databasePath = GlobalConstants.DB_PATH + QueryManager.dataBaseInUse;
         final File database = new File(databasePath);
         final boolean isDatabaseExists = database.isDirectory();
         if (!isDatabaseExists) {
 
             throw new QueryExecutionRuntimeException(LoggerMessages.dataBaseDoesNotExist(startTime, QueryManager.dataBaseInUse));
         }
-        final String tablePath = DATABASE_PATH_IN_USE + QueryManager.dataBaseInUse + FORWARD_SLASH;
+        final String tablePath = GlobalConstants.DB_PATH + QueryManager.dataBaseInUse + FORWARD_SLASH;
         final File allTablesPath = new File(tablePath);
         final File[] allTables = allTablesPath.listFiles();
         if (allTables == null) {

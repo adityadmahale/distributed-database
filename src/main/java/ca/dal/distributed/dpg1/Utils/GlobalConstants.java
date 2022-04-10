@@ -7,7 +7,9 @@ package ca.dal.distributed.dpg1.Utils;
 public class GlobalConstants {
 
     public static final String DELIMITER = "|+|";
-    public static final String DATABASE_PATH = "db/";
+    public static final String CURRENT_DB_PATH = "db/";
+    public static final String CACHE_DB_PATH = "./cache/";
+    public static String DB_PATH = CURRENT_DB_PATH;
     public static final String PRIMARY_KEY_CONSTRAINT = "PK";
     public static final String FOREIGN_KEY_CONSTRAINT = "FK";
 

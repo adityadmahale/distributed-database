@@ -32,4 +32,15 @@ public final class GlobalUtils {
         final File allTables = new File(databasePath);
         return allTables.listFiles();
     }
+
+    public static boolean deleteExistingDatabase(final File abstractDirPath){
+
+        File[] cacheDbTables = abstractDirPath.listFiles();
+        for(File currentFile: cacheDbTables){
+            currentFile.delete();
+        }
+        abstractDirPath.delete();
+
+        return true;
+    }
 }

@@ -7,11 +7,7 @@ package ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils;
 public class DatabaseConstants {
 
 
-    public static boolean isTransactionActive = false;
-
-    public static final String DATABASE_SERVER_PATH = "db/";
-
-    public static final String DATABASE_IN_MEMORY_PATH = "db/in_memory/";
+    public static final String DATABASE_SERVER_PATH = "./db";
 
     public static String DATABASE_PATH_IN_USE = DATABASE_SERVER_PATH;
 
@@ -35,14 +31,4 @@ public class DatabaseConstants {
 
     public static final String FORWARD_SLASH = "/";
 
-    /**
-     * @author Ankush Mudgal
-     * Switch database paths based on whether there's a Transaction active or not.
-     *
-     * @param isTransactionFlow the is transaction flow
-     */
-    public static void switchDatabasePaths(boolean isTransactionFlow) {
-        DatabaseConstants.isTransactionActive = isTransactionFlow;
-        DATABASE_PATH_IN_USE = (isTransactionFlow) ? DATABASE_IN_MEMORY_PATH : DATABASE_SERVER_PATH;
-    }
 }

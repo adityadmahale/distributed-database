@@ -30,7 +30,7 @@ public class ExportData {
             for (var tableName : tableNames) {
                 // Read table data
                 BufferedReader tableReader = new BufferedReader(
-                        new FileReader(String.format("%s%s%s%s.txt", GlobalConstants.DATABASE_PATH, databaseName, File.separator, tableName)));
+                        new FileReader(String.format("%s%s%s%s.txt", GlobalConstants.DB_PATH, databaseName, File.separator, tableName)));
 
                 List<String> columnTypes = writeStructure(writer, tableReader, tableName);
                 writeRows(writer, tableReader, tableName, columnTypes);
