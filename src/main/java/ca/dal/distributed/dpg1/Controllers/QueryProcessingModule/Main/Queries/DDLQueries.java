@@ -67,7 +67,10 @@ public class DDLQueries {
         final String dbPath = GlobalConstants.DB_PATH + databaseName;
 
         final File database = new File(dbPath);
-        checkIfDatabaseExists(queryStartTime, database);
+        if(database.isDirectory()){
+
+            throw new QueryExecutionRuntimeException(LoggerMessages.dataBaseAlreadyExists(queryStartTime, databaseName));
+        }
 
         // Apply Exclusive Resource Lock
         ResourceLockManager.applyExclusiveLock(databaseName, STRING_NULL);

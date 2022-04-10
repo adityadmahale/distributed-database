@@ -45,8 +45,10 @@ public class TransactionQueries {
         }
         File cacheDB = new File(cacheDBPath);
 
-        //@author Ankush Mudgal - BugFix for Cache DB Deletion Error.
-        GlobalUtils.deleteExistingDatabase(cacheDB);
+        //@author Ankush Mudgal - BugFix for Cache DB Deletion Error: Deletes the directory in cache if it already exists.
+        if(cacheDB.isDirectory()){
+            GlobalUtils.deleteExistingDatabase(cacheDB);
+        }
         if (cacheDB.mkdir()) {
             File dbFolder = new File(currentDBPath);
             //Copying all the tables to a cache
