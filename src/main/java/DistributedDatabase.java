@@ -2,6 +2,8 @@ import ca.dal.distributed.dpg1.Controllers.ERDModule.Exceptions.ERDGeneratorExce
 import ca.dal.distributed.dpg1.Controllers.ERDModule.Main.ERDGenerator;
 import ca.dal.distributed.dpg1.Controllers.ERDModule.Main.ERDGeneratorMain;
 import ca.dal.distributed.dpg1.Controllers.ExportModule.Main.ExportData;
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Exceptions.QueryExecutionRuntimeException;
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Exceptions.QueryParseFailureException;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryExecutor;
 import ca.dal.distributed.dpg1.Controllers.TransactionModule.Exceptions.TransactionExceptions;
 import ca.dal.distributed.dpg1.Controllers.UserInterfaceModule.Main.Login;
@@ -17,7 +19,8 @@ import java.util.Scanner;
 public class DistributedDatabase {
     static ERDGeneratorMain erdGenerator = new ERDGenerator();
 
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, ERDGeneratorException, TransactionExceptions {
+    static QueryExecutor executor =new QueryExecutor();
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, ERDGeneratorException, TransactionExceptions , QueryParseFailureException,QueryExecutionRuntimeException{
         if (RemoteUtils.isInternalCommand(args)) {
             RemoteUtils.executeInternalCommand(args);
         } else {
@@ -72,12 +75,20 @@ public class DistributedDatabase {
                                 case 1:
                                     System.out.println(
                                             "\nEnter Query or Transaction, Enter x to Exit:");
-                                    while (!Query.equals("x")) {
+                                    // while (!Query.equals("x")) {
                                         Query = c.nextLine();
                                         if (!Query.equals("x")) {
-                                            System.out.println(Query);
+                                            try{
+                                                executor.processInputQuery(Query);
+                                                System.out.println("\nQuery Sucessfully Executed");
+                                            }
+                                            catch(Exception e)
+                                            {
+                                                System.out.println(e.getMessage());
+                                            }                                         
                                         }
-                                    }
+                                    // }
+                                    Query="temp";
                                     break;
                                 // Export Query Function
                                 case 2:
