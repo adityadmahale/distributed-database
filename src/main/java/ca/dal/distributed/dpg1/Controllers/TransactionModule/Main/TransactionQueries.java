@@ -42,6 +42,9 @@ public class TransactionQueries {
             throw new TransactionExceptions(LoggerMessages.noDatabaseSelected(Instant.now()));
         }
         File cacheDB = new File(cacheDBPath);
+
+        //@author Ankush Mudgal - BugFix for Cache DB Deletion Error.
+        GlobalUtils.deleteExistingDatabase(cacheDB);
         if (cacheDB.mkdir()) {
             File dbFolder = new File(currentDBPath);
             //Copying all the tables to a cache

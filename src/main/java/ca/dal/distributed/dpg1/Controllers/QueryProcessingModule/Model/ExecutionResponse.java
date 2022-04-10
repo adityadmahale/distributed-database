@@ -27,4 +27,8 @@ public class ExecutionResponse {
         return "ExecutionResponse { " + "isExecutionSuccess=" + isExecutionSuccess + "\n" +
                 ", executionResponseMsg='" + executionResponseMsg + '}';
     }
+
+    public boolean isExecutionSuccess() {
+        return isExecutionSuccess;
+    }
 }
