@@ -3,12 +3,14 @@ package ca.dal.distributed.dpg1.Controllers.UserInterfaceModule.Main;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
 public class Login {
 
     Hashing encrypt = new Hashing();
+    public static ArrayList<String> loggedUsers = new ArrayList<String>();
 
     public boolean checkLogin(String userName, String PassWord, String securityAnswer)
             throws FileNotFoundException, NoSuchAlgorithmException {
@@ -28,6 +30,7 @@ public class Login {
         if (credentials.containsKey(encrypt.hash(userName))) {
             if (credentials.get(encrypt.hash(userName)).equals(encrypt.hash(PassWord))) {
                 if (credentialsSecurity.get(encrypt.hash(userName)).equals(encrypt.hash(securityAnswer))) {
+                    loggedUsers.add(userName);
                     return true;
                 }
             }
