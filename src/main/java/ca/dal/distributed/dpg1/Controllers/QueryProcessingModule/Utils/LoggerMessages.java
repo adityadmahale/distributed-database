@@ -277,6 +277,7 @@ public class LoggerMessages {
     public static String transactionStarted(Instant startTime, String databaseName){
         final String message = "Transaction started for database " + databaseName  + getQueryExecutionDuration(startTime, Instant.now());
         generalLogger.logData(message);
+        eventLogger.logData(message);
         return message;
     }
 

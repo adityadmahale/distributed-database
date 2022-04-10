@@ -29,7 +29,7 @@ public class DDLQueries {
         final String queryProcessed = query.substring(0, query.length() - 1);
         final String[] temporaryArray = queryProcessed.split(" ");
         final String databaseName = temporaryArray[2];
-        final String databasePath = DATABASE_PATH_IN_USE + databaseName;
+        final String databasePath = GlobalConstants.DB_PATH + databaseName;
 
         final File database = new File(databasePath);
         final boolean databaseExists = database.isDirectory();
@@ -61,7 +61,7 @@ public class DDLQueries {
         final String[] temporaryArray = queryProcessed.split(" ");
         final String databaseName = temporaryArray[2];
         
-        final String databasePath = DATABASE_PATH_IN_USE + databaseName;
+        final String databasePath = GlobalConstants.DB_PATH + databaseName;
         final File database = new File(databasePath);
         final boolean isDatabaseExists = database.isDirectory();
         
@@ -106,11 +106,11 @@ public class DDLQueries {
         final String queryProcessed = query.substring(0, query.length() - 1);
         final String[] temporaryArray = queryProcessed.split(" ");
         final String databaseName = temporaryArray[2];
-        final String databasePath = DATABASE_PATH_IN_USE + databaseName;
+        final String databasePath = GlobalConstants.DB_PATH + databaseName;
         final File database = new File(databasePath);
         final boolean isDatabaseExists = database.isDirectory();
         if (isDatabaseExists) {
-            final File[] files = new File(DATABASE_PATH_IN_USE).listFiles();
+            final File[] files = new File(GlobalConstants.DB_PATH).listFiles();
             if (files == null) {
 
                 throw new QueryExecutionRuntimeException(LoggerMessages.dataBaseUsageError(startTime, databaseName));
@@ -138,14 +138,14 @@ public class DDLQueries {
         final String queryProcessed = query.substring(0, query.length() - 1);
         final String[] temporaryArray = queryProcessed.split(" ");
         final String tableName = temporaryArray[2];
-        final String databasePath = DATABASE_PATH_IN_USE + QueryManager.dataBaseInUse;
+        final String databasePath = GlobalConstants.DB_PATH + QueryManager.dataBaseInUse;
         final File database = new File(databasePath);
         final boolean isDatabaseExists = database.isDirectory();
         if (!isDatabaseExists) {
 
             throw new QueryExecutionRuntimeException(LoggerMessages.dataBaseDoesNotExist(startTime, database.toString()));
         }
-        final String tablePath = DATABASE_PATH_IN_USE + QueryManager.dataBaseInUse + FORWARD_SLASH;
+        final String tablePath = GlobalConstants.DB_PATH + QueryManager.dataBaseInUse + FORWARD_SLASH;
         final File allTablesPath = new File(tablePath);
         final File[] allTables = allTablesPath.listFiles();
         if (allTables == null) {
@@ -238,7 +238,7 @@ public class DDLQueries {
         final String queryProcessed = query.substring(0, query.length() - 1);
         final String[] temporaryArray = queryProcessed.split(" ");
         final String tableName = temporaryArray[2];
-        final String databasePath = DATABASE_PATH_IN_USE + QueryManager.dataBaseInUse;
+        final String databasePath = GlobalConstants.DB_PATH + QueryManager.dataBaseInUse;
         final File database = new File(databasePath);
         final boolean isDatabaseExists = database.isDirectory();
         if (!isDatabaseExists) {
@@ -264,7 +264,7 @@ public class DDLQueries {
             throw new QueryExecutionRuntimeException(LoggerMessages.tableDoesNotExist(startTime, tableName));
         }
         ResourceLockManager.applyExclusiveLock(QueryManager.dataBaseInUse, tableName); // Apply Exclusive ResourceLockManager
-        final String tablePath = DATABASE_PATH_IN_USE + QueryManager.dataBaseInUse + FORWARD_SLASH + tableName + GlobalConstants.EXTENSION_DOT_TXT;
+        final String tablePath = GlobalConstants.DB_PATH + QueryManager.dataBaseInUse + FORWARD_SLASH + tableName + GlobalConstants.EXTENSION_DOT_TXT;
         try (final BufferedReader bufferedReader = new BufferedReader(new FileReader(tablePath))) {
             final String writeToFile = bufferedReader.readLine();
             if (writeToFile == null || writeToFile.isEmpty()) {
@@ -294,7 +294,7 @@ public class DDLQueries {
         final String queryProcessed = query.substring(0, query.length() - 1);
         final String[] temporaryArray = queryProcessed.split(" ");
         final String tableName = temporaryArray[2];
-        final String databasePath = DATABASE_PATH_IN_USE + QueryManager.dataBaseInUse;
+        final String databasePath = GlobalConstants.DB_PATH + QueryManager.dataBaseInUse;
         final File database = new File(databasePath);
         final boolean isDatabaseExists = database.isDirectory();
         if (!isDatabaseExists) {

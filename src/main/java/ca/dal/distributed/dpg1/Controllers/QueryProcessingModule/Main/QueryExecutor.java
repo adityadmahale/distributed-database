@@ -2,12 +2,13 @@ package ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main;
 
 import ca.dal.distributed.dpg1.Controllers.LoggerModule.Main.EventLogger;
 import ca.dal.distributed.dpg1.Controllers.LoggerModule.Main.QueryLogger;
-import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.Queries.TransactionQueries;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Model.ExecutionResponse;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Exceptions.QueryExecutionRuntimeException;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Exceptions.QueryParseFailureException;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.Queries.DDLQueries;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.Queries.DMLQueries;
+import ca.dal.distributed.dpg1.Controllers.TransactionModule.Exceptions.TransactionExceptions;
+import ca.dal.distributed.dpg1.Controllers.TransactionModule.Main.TransactionQueries;
 import ca.dal.distributed.dpg1.Utils.GlobalConstants;
 
 import static ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.QueryKeywordRegexen.*;
@@ -35,7 +36,7 @@ public class QueryExecutor {
      * @throws QueryExecutionRuntimeException the query execution runtime exception
      * @throws QueryParseFailureException     the query parse failure exception
      */
-    public ExecutionResponse processInputQuery(String inputQuery) throws QueryExecutionRuntimeException, QueryParseFailureException {
+    public ExecutionResponse processInputQuery(String inputQuery) throws QueryExecutionRuntimeException, QueryParseFailureException, TransactionExceptions {
 
         //Log the query to log file.
         queryLogger.logData(inputQuery);
@@ -78,7 +79,10 @@ public class QueryExecutor {
                 return ddlQueries.truncateTable(inputQuery);
             } else if (queryToLowercase.contains(DROP_TABLE_KEYWORD)) {
                 return ddlQueries.dropTable(inputQuery);
-            } else if (queryToLowercase.contains(START_TRANSACTION_KEYWORD)) {
+            }
+
+            //@author Ankush Mudgal - Integration with Transaction Module
+            else if (queryToLowercase.contains(START_TRANSACTION_KEYWORD)) {
                 return transactionQueries.startTransaction();
             } else if (queryToLowercase.contains(COMMIT_KEYWORD)) {
                 return transactionQueries.commitTransaction();

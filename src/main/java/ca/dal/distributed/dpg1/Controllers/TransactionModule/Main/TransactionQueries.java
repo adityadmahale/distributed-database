@@ -3,8 +3,13 @@ package ca.dal.distributed.dpg1.Controllers.TransactionModule.Main;
 import ca.dal.distributed.dpg1.Controllers.LoggerModule.Enums.LoggerType;
 import ca.dal.distributed.dpg1.Controllers.LoggerModule.Main.GeneralLogger;
 import ca.dal.distributed.dpg1.Controllers.LoggerModule.Main.LoggerFactory;
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Exceptions.QueryExecutionRuntimeException;
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryManager;
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Model.ExecutionResponse;
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.LoggerMessages;
 import ca.dal.distributed.dpg1.Controllers.TransactionModule.Exceptions.TransactionExceptions;
-import ca.dal.distributed.dpg1.Controllers.TransactionModule.Utils.TransactionConstants;
+import ca.dal.distributed.dpg1.Utils.GlobalConstants;
+import ca.dal.distributed.dpg1.Utils.GlobalUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,19 +18,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 
-import static ca.dal.distributed.dpg1.Controllers.TransactionModule.Utils.TransactionConstants.*;
-import static ca.dal.distributed.dpg1.Controllers.TransactionModule.Utils.TransactionConstants.CURRENT_DB_PATH;
+import static ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryManager.changeDBPath;
+import static ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryManager.isTransactionActive;
 
-public class TransactionMain {
+public class TransactionQueries {
 
-    private String databaseName = null;
     private final GeneralLogger generalLogger;
 
-    private boolean dbCheck() {
-        return this.databaseName != null;
-    }
-
-    public TransactionMain() {
+    public TransactionQueries() {
         this.generalLogger = (GeneralLogger) new LoggerFactory().getLogger(LoggerType.GENERAL_LOGGER);
     }
 
@@ -34,13 +34,12 @@ public class TransactionMain {
      * @description Function if user enters start transaction
      */
 
-    public void startTransaction() throws TransactionExceptions {
-        String currentDBPath = CURRENT_DB_PATH + "/" + this.databaseName + "/";
-        String cacheDBPath = CACHE_DB_PATH + "/" + this.databaseName + "/";
-        if (!dbCheck()) {
-            String error_message = TransactionConstants.ERROR_MESSAGE_DATABASE_NOT_SELECTED;
-            generalLogger.logData(error_message);
-            throw new TransactionExceptions(error_message);
+    public ExecutionResponse startTransaction() throws TransactionExceptions {
+        String currentDBPath = GlobalConstants.CURRENT_DB_PATH + QueryManager.dataBaseInUse + "/";
+        String cacheDBPath = GlobalConstants.CACHE_DB_PATH + "/" + QueryManager.dataBaseInUse + "/";
+        if (!QueryManager.isdataBaseInUse()) {
+
+            throw new TransactionExceptions(LoggerMessages.noDatabaseSelected(Instant.now()));
         }
         File cacheDB = new File(cacheDBPath);
         if (cacheDB.mkdir()) {
@@ -61,14 +60,13 @@ public class TransactionMain {
                     throw new TransactionExceptions(error_message);
                 }
             }
-            String message = TransactionConstants.SUCCESS_MESSAGE_TXN_STARTED;
-            generalLogger.logData(message);
+
             changeDBPath(true);
-//            return new QueryProcessorResponse(true, message);
+            return new ExecutionResponse(true, LoggerMessages.transactionStarted(Instant.now(), QueryManager.dataBaseInUse));
         } else {
-            String error_message = TransactionConstants.ERROR_TRANSACTION_FAILED;
-            generalLogger.logData(error_message);
-            throw new TransactionExceptions(error_message);
+
+            GlobalUtils.deleteExistingDatabase(cacheDB);
+            throw new TransactionExceptions(LoggerMessages.transactionFailed(Instant.now(), QueryManager.dataBaseInUse));
         }
 
 
@@ -78,32 +76,31 @@ public class TransactionMain {
      * @author Guryash Singh Dhall
      * @description Function if user wants to commit the transaction
      */
-    public void commitTransaction()
-            throws TransactionExceptions {
-        if (!transactionIfPresent) {
-            String error_message = TransactionConstants.ERROR_TRANSACTION_DOES_NOT_EXIST;
-            generalLogger.logData(error_message);
-            throw new TransactionExceptions(error_message);
+    public ExecutionResponse commitTransaction() throws TransactionExceptions {
+
+        if (!isTransactionActive) {
+            throw new QueryExecutionRuntimeException(LoggerMessages.transactionFailedToStart(Instant.now(), QueryManager.dataBaseInUse));
         }
-        String cache_dbpath = DB_PATH;
-        cache_dbpath = cache_dbpath.concat("/" + this.databaseName + "/");
+        String cache_dbpath = GlobalConstants.DB_PATH;
+        cache_dbpath = cache_dbpath.concat("/" + QueryManager.dataBaseInUse + "/");
         File cacheDB = new File(cache_dbpath);
         if (!cacheDB.isDirectory()) {
-            String error_message = ERROR_DATABASE_DOES_NOT_EXIST;
-            generalLogger.logData(error_message);
+
             changeDBPath(false);
-            throw new TransactionExceptions(error_message);
+            throw new TransactionExceptions(LoggerMessages.dataBaseDoesNotExist(Instant.now(), QueryManager.dataBaseInUse));
         }
-        String currentDBPath = CURRENT_DB_PATH + "/" + this.databaseName + "/";
-        currentDBPath = currentDBPath.concat("/" + this.databaseName + "/");
+        String currentDBPath = GlobalConstants.CURRENT_DB_PATH + "/" + QueryManager.dataBaseInUse + "/";
         final File currentDB = new File(currentDBPath);
         if (!currentDB.isDirectory()) {
-            String error_message = ERROR_DATABASE_DOES_NOT_EXIST;
-            generalLogger.logData(error_message);
+
             changeDBPath(false);
-            throw new TransactionExceptions(error_message);
+            throw new TransactionExceptions(LoggerMessages.dataBaseDoesNotExist(Instant.now(), QueryManager.dataBaseInUse));
         }
-        final File[] allTables = currentDB.listFiles();
+
+        //Delete the tables in current DB.
+        if(!GlobalUtils.deleteExistingDatabase(currentDB)){
+            throw new TransactionExceptions(LoggerMessages.dataBaseTablesDeletionFailed(Instant.now(), QueryManager.dataBaseInUse));
+        }
         /**
          * @author Guryash Singh Dhall
          * @description Condition if tables are not present
@@ -111,10 +108,9 @@ public class TransactionMain {
         if (currentDB.mkdir()) {
             final File[] cacheDbTables = cacheDB.listFiles();
             if (cacheDbTables == null) {
-                String error_message = ERROR_TRANSACTION_FAILED;
-                generalLogger.logData(error_message);
+
                 changeDBPath(false);
-                throw new TransactionExceptions(error_message);
+                throw new TransactionExceptions(LoggerMessages.transactionFailed(Instant.now(), QueryManager.dataBaseInUse));
             }
             /**
              * @description Copy the cache database to current database , as we have the commit command
@@ -137,27 +133,23 @@ public class TransactionMain {
             }
             for (final File searchTable : cacheDbTables) {
                 if (!searchTable.delete()) {
-                    String error_message = ERROR_TABLES_NOT_DELETED;
-                    generalLogger.logData(error_message);
+
                     changeDBPath(false);
-                    throw new TransactionExceptions(error_message);
+                    throw new TransactionExceptions(LoggerMessages.dataBaseTablesDeletionFailed(Instant.now(), QueryManager.dataBaseInUse));
                 }
             }
             if (!cacheDB.delete()) {
-                String error_message = ERROR_TABLES_NOT_DELETED;
-                generalLogger.logData(error_message);
+
                 changeDBPath(false);
-                throw new TransactionExceptions(error_message);
+                throw new TransactionExceptions(LoggerMessages.dataBaseTablesDeletionFailed(Instant.now(), QueryManager.dataBaseInUse));
             }
-            String success_message = SUCCESS_MESSAGE_TXN_COMMITTED;
-            generalLogger.logData(success_message);
+
             changeDBPath(false);
-            //TODO:   return a success message that the transaction has been committed
+            return new ExecutionResponse(true, LoggerMessages.transactionCommitted(Instant.now(), QueryManager.dataBaseInUse));
         } else {
-            String error_message = TransactionConstants.ERROR_TRANSACTION_FAILED;
-            generalLogger.logData(error_message);
+
             changeDBPath(false);
-            throw new TransactionExceptions(error_message);
+            throw new TransactionExceptions(LoggerMessages.transactionFailed(Instant.now(), QueryManager.dataBaseInUse));
         }
     }
 
@@ -167,24 +159,20 @@ public class TransactionMain {
      * @description Function if user wants to rollback the transaction
      */
 
-    public void rollbackTransaction()
-            throws TransactionExceptions {
+    public ExecutionResponse rollbackTransaction() throws TransactionExceptions {
 
-        if (!transactionIfPresent) {
-            String error_message = TransactionConstants.ERROR_TRANSACTION_DOES_NOT_EXIST;
-            generalLogger.logData(error_message);
-            throw new TransactionExceptions(error_message);
+        if (!isTransactionActive) {
+            throw new QueryExecutionRuntimeException(LoggerMessages.transactionFailedToStart(Instant.now(), QueryManager.dataBaseInUse));
         }
 
-        String cacheDBPath = DB_PATH;
-        cacheDBPath = cacheDBPath.concat("/" + this.databaseName + "/");
+        String cacheDBPath = GlobalConstants.DB_PATH;
+        cacheDBPath = cacheDBPath.concat("/" + QueryManager.dataBaseInUse + "/");
         File cacheDB = new File(cacheDBPath);
 
         if (!cacheDB.isDirectory()) {
-            String error_message = ERROR_DATABASE_DOES_NOT_EXIST;
-            generalLogger.logData(error_message);
+
             changeDBPath(false);
-            throw new TransactionExceptions(error_message);
+            throw new TransactionExceptions(LoggerMessages.dataBaseDoesNotExist(Instant.now(), QueryManager.dataBaseInUse));
         }
         final File[] cacheTables = cacheDB.listFiles();
 //        if (cacheTables == null) {
@@ -196,23 +184,20 @@ public class TransactionMain {
 //        }
         for (File searchTable : cacheTables) {
             if (!searchTable.delete()) {
-                String error_message = ERROR_TABLES_NOT_DELETED;
-                generalLogger.logData(error_message);
+
                 changeDBPath(false);
-                throw new TransactionExceptions(error_message);
+                throw new TransactionExceptions(LoggerMessages.dataBaseTablesDeletionFailed(Instant.now(), QueryManager.dataBaseInUse));
             }
         }
 
         if (cacheDB.delete()) {
-            String success_message = SUCCESS_MESSAGE_TXN_ROLLBACK;
-            generalLogger.logData(success_message);
+
             changeDBPath(false);
-            // TODO : return a success messgae that the transaction has been rolled back
+            return new ExecutionResponse(true, LoggerMessages.transactionRollback(Instant.now(), QueryManager.dataBaseInUse));
         } else {
-            String error_message = TransactionConstants.ERROR_TRANSACTION_FAILED;
-            generalLogger.logData(error_message);
+
             changeDBPath(false);
-            throw new TransactionExceptions(error_message);
+            throw new TransactionExceptions(LoggerMessages.transactionFailed(Instant.now(), QueryManager.dataBaseInUse));
         }
     }
 
