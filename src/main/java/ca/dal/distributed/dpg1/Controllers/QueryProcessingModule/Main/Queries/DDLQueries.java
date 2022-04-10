@@ -5,7 +5,7 @@ import ca.dal.distributed.dpg1.Controllers.LoggerModule.Main.GeneralLogger;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Exceptions.QueryExecutionRuntimeException;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Model.ExecutionResponse;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryManager;
-import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.MetaDataWriter;
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.MetaDataHandler;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.ResourceLockManager;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.LoggerMessages;
 import ca.dal.distributed.dpg1.Utils.GlobalConstants;
@@ -50,7 +50,7 @@ public class DDLQueries {
         if (isNewDirectoryCreated) {
 
                 //@author Ankush Mudgal - Writes Database to Global Metadata Metadata file.
-            final boolean isGlobalMetaDataUpdated = MetaDataWriter.writeToGlobalMetaData(databaseName);
+            final boolean isGlobalMetaDataUpdated = MetaDataHandler.writeToGlobalMetaData(databaseName);
             if(isGlobalMetaDataUpdated){
                 generalLogger.logData("Database " + databaseName + "added to global metadata file.");
             }
@@ -102,6 +102,11 @@ public class DDLQueries {
             QueryManager.dataBaseInUse = null;
             ResourceLockManager.releaseExclusiveLock(databaseName, null); // Release Exclusive ResourceLockManager
 
+            //@author Ankush Mudgal - Removes the database form the Global Metadata file
+            final boolean isDeletedFromGlobalMD = MetaDataHandler.deleteFromGlobalMetaData(databaseName);
+            if(isDeletedFromGlobalMD){
+                generalLogger.logData("Database " + databaseName + "removed from the global metadata file.");
+            }
             return new ExecutionResponse(true, LoggerMessages.dataBaseDropped(startTime, databaseName));
         } else {
             ResourceLockManager.releaseExclusiveLock(databaseName, null); // Release Exclusive ResourceLockManager
@@ -175,7 +180,7 @@ public class DDLQueries {
         //@author Ankush Mudgal - Writes Table Metadata to the Local Metadata file.
         if(createdTableResponse.isExecutionSuccess()){
 
-            final boolean isMetadataUpdated = MetaDataWriter.writeToDBLocalMetaData(tableName, tablePath);
+            final boolean isMetadataUpdated = MetaDataHandler.writeToDBLocalMetaData(tableName, tablePath);
             if(isMetadataUpdated){
                 generalLogger.logData("Added new table " + tableName + " to local metadata for the Database " + QueryManager.dataBaseInUse);
             }
@@ -337,6 +342,12 @@ public class DDLQueries {
         if (!isTableExists) {
 
             throw new QueryExecutionRuntimeException(LoggerMessages.tableDoesNotExist(startTime,tableName));
+        }
+
+        //@author Ankush Mudgal - Removes the table from the local metadata file.
+        final boolean isDeletedFromLocalMD = MetaDataHandler.deleteFromDBLocalMetaData(tableName, databasePath);
+        if(isDeletedFromLocalMD){
+            generalLogger.logData("Table " + tableName + "has been removed from the local metadata fot the DB " + QueryManager.dataBaseInUse);
         }
 
         return new ExecutionResponse(true, LoggerMessages.dataBaseTableDropped(startTime, tableName));
