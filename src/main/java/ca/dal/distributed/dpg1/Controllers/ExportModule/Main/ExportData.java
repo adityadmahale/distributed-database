@@ -1,6 +1,5 @@
 package ca.dal.distributed.dpg1.Controllers.ExportModule.Main;
-import ca.dal.distributed.dpg1.Utils.GlobalConstants;
-import ca.dal.distributed.dpg1.Utils.RemoteConstants;
+import ca.dal.distributed.dpg1.Utils.*;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -13,11 +12,9 @@ import java.util.List;
 public class ExportData {
 
     private final String databaseName;
-    private final List<String> tableNames;
 
-    public ExportData(String databaseName, List<String> tableNames) {
+    public ExportData(String databaseName) {
         this.databaseName = databaseName;
-        this.tableNames = tableNames;
     }
 
     /**
@@ -25,12 +22,26 @@ public class ExportData {
      * @description Exports the dump file to the dumps directory
      */
     public void exportToFile() {
+        if (!GlobalUtils.isDatabasePresent(databaseName)) {
+            System.out.println("Database does not exist");
+            return;
+        }
+
+        if (RemoteUtils.isDistributed() && GlobalUtils.isDatabasePresentRemotely(databaseName)) {
+            String[] args = {RemoteConstants.COMMAND_REMOTE, RemoteConstants.COMMAND_EXPORT_SQL, databaseName};
+            RemoteUtils.executeInternalCommand(args);
+            RemoteUtils.download(RemoteConstants.DUMP_LOCATION + databaseName, RemoteConstants.DUMP_LOCATION + databaseName);
+            return;
+        }
+
+        List<String> tableNames = GlobalUtils.getTableNames(databaseName);
+
         try (FileWriter writer = new FileWriter(RemoteConstants.DUMP_LOCATION + databaseName)) {
             // Loop for all the tables
             for (var tableName : tableNames) {
                 // Read table data
                 BufferedReader tableReader = new BufferedReader(
-                        new FileReader(String.format("%s%s%s%s.txt", GlobalConstants.DB_PATH, databaseName, File.separator, tableName)));
+                        new FileReader(String.format("%s%s%s%s.txt", GlobalConstants.DB_PATH, databaseName, File.separator, tableName, GlobalConstants.EXTENSION_DOT_TXT)));
 
                 List<String> columnTypes = writeStructure(writer, tableReader, tableName);
                 writeRows(writer, tableReader, tableName, columnTypes);
