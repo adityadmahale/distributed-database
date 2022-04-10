@@ -83,7 +83,7 @@ public class DistributedDatabase {
                                             try{
                                                 ExecutionResponse er = executor.processInputQuery(Query);
                                                 if(er.isExecutionSuccess()){
-                                                    System.out.println("\nQuery Sucessfully Executed"+er.getExecutionResponseMsg());
+                                                    System.out.println("\nQuery Sucessfully Executed "+er.getExecutionResponseMsg());
                                                 }else{
                                                     System.out.println("\n Something Went Wrong");
                                                 }
@@ -122,6 +122,7 @@ public class DistributedDatabase {
                             }
                             System.out.print("\n");
                         }
+                        db_option="0";
                         break;
                     case "2":
                         System.out.println("\nset your name: ");
