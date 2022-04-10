@@ -15,6 +15,7 @@ import ca.dal.distributed.dpg1.Utils.RemoteUtils;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class DistributedDatabase {
@@ -28,7 +29,6 @@ public class DistributedDatabase {
             Scanner c = new Scanner(System.in);
             String userName;
             String pass, passConfirm, securityAnswer;
-            char[] ch, ch1;
             boolean loginValidation;
             String Query = "temp";
             Login chk_login = new Login();
@@ -52,15 +52,14 @@ public class DistributedDatabase {
                         System.out.println("\nEnter your name: ");
                         userName = c.nextLine();
                         System.out.println("\nEnter password: ");
-//                                        ch = c.readPassword();
                         pass=c.nextLine();
-//                                        pass = String.valueOf(ch);
                         System.out.println("\nAnswer the following Security Question:");
                         System.out.println("\nWhat primary school did you attend?");
                         securityAnswer = c.nextLine();
                         loginValidation = chk_login.checkLogin(userName, pass, securityAnswer);
                         if (loginValidation) {
                             System.out.println("\nSucessfully Logged in as:" + userName);
+                            // System.out.println(chk_login.loggedUsers.toString()); 
                         } else {
                             System.out.println("\nInvalid Credentials");
                             break;
