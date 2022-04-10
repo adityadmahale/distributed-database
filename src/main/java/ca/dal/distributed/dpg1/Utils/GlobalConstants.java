@@ -40,4 +40,6 @@ public class GlobalConstants {
 
     public static final String ERROR_MESSAGE_INVALID_DB_PATH = "Invalid database path or database does not exist.";
     public static final String STRING_NULL = null;
+    public static final String EXTENSION_METADATA_FILE = "_metadata.txt";
+    public static final String TABLES_PATH = "tables/";
 }
