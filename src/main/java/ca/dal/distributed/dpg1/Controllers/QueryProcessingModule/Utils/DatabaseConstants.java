@@ -1,5 +1,8 @@
 package ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils;
 
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryManager;
+import ca.dal.distributed.dpg1.Utils.GlobalConstants;
+
 /**
  * @author Ankush Mudgal
  * Database constants - has the constants used for the processing of the database and the SQL queries.
@@ -7,13 +10,19 @@ package ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils;
 public class DatabaseConstants {
 
 
-    public static final String DATABASE_SERVER_PATH = "./db";
+    //=================> DO NOT MOVE ANY OF THESE TO GLOBAL CONSTANTS - BREAKS FLOW. <==================.
 
-    public static String DATABASE_PATH_IN_USE = DATABASE_SERVER_PATH;
+    public static final String ABSOLUTE_CURRENT_DB_PATH = GlobalConstants.DB_PATH + QueryManager.dataBaseInUse;
 
-    public static final String DELIMITER = "|+|";
+    public static final String PRIMARY_KEYWORD = "PRIMARY";
 
-    public static final String DELIMITER_ESCAPED = "\\|\\+\\|";
+    public static final String REFERENCES_KEYWORD = "REFERENCES";
+
+    public static final String COLUMN_TYPE_OPEN_DELIMITER = "(";
+
+    public static final String COLUMN_TYPE_CLOSE_DELIMITER = ")";
+
+    public static final String CARDINALITY_SEPARATOR = "|";
 
     public static final String CREATE_TABLE_COLUMN_REGEX = "([a-zA-Z\\d]+\\s(INT|TEXT|FLOAT|BOOLEAN)(\\sPRIMARY KEY|\\sREFERENCES\\s[a-zA-Z\\d]+\\([a-zA-Z\\d]+\\))?(,\\s[a-zA-Z\\d]+\\s(INT|TEXT|FLOAT|BOOLEAN)(\\sPRIMARY KEY|\\sREFERENCES\\s[a-zA-Z\\d]+\\([a-zA-Z\\d]+\\))?)*)";
 
