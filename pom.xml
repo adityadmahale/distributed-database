@@ -31,6 +31,15 @@
                 <role>Developer</role>
             </roles>
         </developer>
+        <developer>
+            <id>B00910690</id>
+            <name>Guryash Singh Dhall</name>
+            <email>guryash.dhall@dal.ca</email>
+            <roles>
+                <role>Student</role>
+                <role>Developer</role>
+            </roles>
+        </developer>
     </developers>
 
     <build>
@@ -77,5 +86,13 @@
             </plugin>
         </plugins>
     </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.55</version>
+        </dependency>
+    </dependencies>
 
 </project>
