@@ -36,4 +36,8 @@ public class ExecutionResponse {
     public String getExecutionResponseMsg(){
         return executionResponseMsg;
     }
+
+    public String getExecutionResponseMsg() {
+        return executionResponseMsg;
+    }
 }

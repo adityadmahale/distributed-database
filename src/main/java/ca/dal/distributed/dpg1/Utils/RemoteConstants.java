@@ -21,6 +21,7 @@ public class RemoteConstants {
     public static final String COMMAND_INCREMENT_OPERATION_COUNT = "incrementOperationCountData";
     public static final String COMMAND_EXECUTE_QUERY = "executeQuery";
     public static final String COMMAND_UPDATE_GLOBAL_METADATA = "updateGlobal";
+    public static final String DELETE_FROM_GLOBAL_METADATA = "deleteGlobal";
     public static final String COMMAND_EXPORT_SQL = "exportSQL";
     public static final String DUMP_LOCATION = "outputs/dumps/";
 }
