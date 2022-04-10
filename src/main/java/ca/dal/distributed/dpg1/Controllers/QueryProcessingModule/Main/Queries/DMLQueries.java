@@ -17,6 +17,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.DatabaseConstants.*;
+import static ca.dal.distributed.dpg1.Utils.GlobalConstants.DELIMITER;
+import static ca.dal.distributed.dpg1.Utils.GlobalConstants.DELIMITER_ESCAPED;
 
 public class DMLQueries {
 
@@ -25,7 +27,7 @@ public class DMLQueries {
 
     public ExecutionResponse insertInto(final String query) throws QueryExecutionRuntimeException {
 
-        if (!QueryManager.isdataBaseInUse()) {
+        if (!QueryManager.isDataBaseInUse()) {
             throw new QueryExecutionRuntimeException(LoggerMessages.noDatabaseSelected(Instant.now()));
         }
 
@@ -158,7 +160,7 @@ public class DMLQueries {
 
     public ExecutionResponse selectAll(String query) throws QueryExecutionRuntimeException {
         final Instant startTime = Instant.now();
-        if (!QueryManager.isdataBaseInUse()) {
+        if (!QueryManager.isDataBaseInUse()) {
             throw new QueryExecutionRuntimeException(LoggerMessages.noDatabaseSelected(startTime));
         }
         final String queryProcessed = query.substring(0, query.length() - 1);
@@ -224,7 +226,7 @@ public class DMLQueries {
 
     public ExecutionResponse selectDistinct(final String query) throws QueryExecutionRuntimeException {
         final Instant startTime = Instant.now();
-        if (!QueryManager.isdataBaseInUse()) {
+        if (!QueryManager.isDataBaseInUse()) {
             throw new QueryExecutionRuntimeException(LoggerMessages.noDatabaseSelected(startTime));
         }
         final String queryProcessed = query.substring(0, query.length() - 1);
