@@ -200,7 +200,7 @@ public class ERDGenerator extends ERDGeneratorMain {
                     ERDConstants.ERROR_MESSAGE_FAILED_TO_GENERATE_ERD,
                     ERDConstants.ERROR_CAUSE_MESSAGE_INVALID_DATABASE_NAME, eventLogger);
         }
-        final String databasePath = GlobalConstants.DATABASE_PATH + databaseName;
+        final String databasePath = GlobalConstants.DB_PATH + databaseName;
         if (!Files.exists(Paths.get(databasePath))) {
             ERDUtils.handleERDError(databasePath, databaseName, ERDConstants.ERROR_MESSAGE_FAILED_TO_GENERATE_ERD,
                     ERDConstants.ERROR_CAUSE_MESSAGE_INVALID_DATABASE_NAME, eventLogger);
