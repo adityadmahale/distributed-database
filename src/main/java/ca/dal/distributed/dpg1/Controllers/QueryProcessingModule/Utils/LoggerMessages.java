@@ -266,6 +266,22 @@ public class LoggerMessages {
         return message;
     }
 
+
+    /**
+     * @author Ankush Mudgal
+     * Truncate table failed during execution..
+     *
+     * @param startTime the start time
+     * @param tableName the table name
+     * @return log message
+     */
+    public static String truncateTableFailed(Instant startTime, String tableName){
+
+        final String message = "Error Occurred: Table " + tableName + " could not be truncated. " + getQueryExecutionDuration(startTime, Instant.now());
+        eventLogger.logData(message);
+        return message;
+    }
+
     /**
      * @author Ankush Mudgal
      * Transaction started.
