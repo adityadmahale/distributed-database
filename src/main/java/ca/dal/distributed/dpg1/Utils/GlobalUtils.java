@@ -1,5 +1,8 @@
 package ca.dal.distributed.dpg1.Utils;
 
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryManager;
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Model.ExecutionResponse;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -165,5 +168,9 @@ public final class GlobalUtils {
             e.printStackTrace();
         }
         return tableNames;
+    }
+
+    public static void useDatabase(String databaseName) {
+        QueryManager.dataBaseInUse = databaseName;
     }
 }

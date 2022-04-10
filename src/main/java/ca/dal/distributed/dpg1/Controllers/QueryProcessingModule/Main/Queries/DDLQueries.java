@@ -9,6 +9,9 @@ import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.MetaDataH
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.ResourceLockManager;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.LoggerMessages;
 import ca.dal.distributed.dpg1.Utils.GlobalConstants;
+import ca.dal.distributed.dpg1.Utils.GlobalUtils;
+import ca.dal.distributed.dpg1.Utils.RemoteConstants;
+import ca.dal.distributed.dpg1.Utils.RemoteUtils;
 
 import java.io.*;
 import java.time.Instant;
@@ -71,10 +74,17 @@ public class DDLQueries {
         
         final String databasePath = GlobalConstants.DB_PATH + databaseName;
         final File database = new File(databasePath);
-        final boolean isDatabaseExists = database.isDirectory();
+        final boolean isDatabaseExists = GlobalUtils.isDatabasePresent(databaseName);
         
         if (!isDatabaseExists) {
             throw new QueryExecutionRuntimeException(LoggerMessages.dataBaseDoesNotExist(startTime, databaseName));
+        }
+
+        if (RemoteUtils.isDistributed() && GlobalUtils.isDatabasePresentRemotely(databaseName)) {
+            String[] args = {RemoteConstants.COMMAND_REMOTE, RemoteConstants.COMMAND_EXECUTE_QUERY, databaseName, "\"" + query + "\""};
+            RemoteUtils.executeInternalCommand(args);
+            MetaDataHandler.deleteFromGlobalMetaData(databaseName);
+            return null;
         }
 
         //Apply Exclusive ResourceLockManager
@@ -121,18 +131,19 @@ public class DDLQueries {
         final String databaseName = temporaryArray[2];
         final String databasePath = GlobalConstants.DB_PATH + databaseName;
         final File database = new File(databasePath);
-        final boolean isDatabaseExists = database.isDirectory();
+        final boolean isDatabaseExists = GlobalUtils.isDatabasePresent(databaseName);
         if (isDatabaseExists) {
-            final File[] files = new File(GlobalConstants.DB_PATH).listFiles();
-            if (files == null) {
-
-                throw new QueryExecutionRuntimeException(LoggerMessages.dataBaseUsageError(startTime, databaseName));
-            }
-            for (final File file : files) {
-                if (file.getName().equalsIgnoreCase(databaseName)) {
-                    QueryManager.dataBaseInUse = file.getName();
-                }
-            }
+//            final File[] files = new File(GlobalConstants.DB_PATH).listFiles();
+//            if (files == null) {
+//
+//                throw new QueryExecutionRuntimeException(LoggerMessages.dataBaseUsageError(startTime, databaseName));
+//            }
+//            for (final File file : files) {
+//                if (file.getName().equalsIgnoreCase(databaseName)) {
+//                    QueryManager.dataBaseInUse = file.getName();
+//                }
+//            }
+            QueryManager.dataBaseInUse = databaseName;
 
             return new ExecutionResponse(true, LoggerMessages.dataBaseUsageSuccessful(startTime, databaseName));
         } else {
@@ -146,6 +157,13 @@ public class DDLQueries {
         if (!QueryManager.isdataBaseInUse()) {
 
             throw new QueryExecutionRuntimeException(LoggerMessages.noDatabaseSelected(startTime));
+        }
+
+        String databaseName = QueryManager.dataBaseInUse;
+        if (RemoteUtils.isDistributed() && GlobalUtils.isDatabasePresentRemotely(databaseName)) {
+            String[] args = {RemoteConstants.COMMAND_REMOTE, RemoteConstants.COMMAND_EXECUTE_QUERY, databaseName, "\"" + query + "\""};
+            RemoteUtils.executeInternalCommand(args);
+            return null;
         }
 
         final String queryProcessed = query.substring(0, query.length() - 1);
