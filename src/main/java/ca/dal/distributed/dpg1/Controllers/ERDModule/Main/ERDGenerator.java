@@ -19,6 +19,8 @@ import ca.dal.distributed.dpg1.Controllers.LoggerModule.Main.GeneralLogger;
 import ca.dal.distributed.dpg1.Controllers.LoggerModule.Main.LoggerFactory;
 import ca.dal.distributed.dpg1.Utils.GlobalConstants;
 import ca.dal.distributed.dpg1.Utils.GlobalUtils;
+import ca.dal.distributed.dpg1.Utils.RemoteConstants;
+import ca.dal.distributed.dpg1.Utils.RemoteUtils;
 
 /**
  * @author Bharatwaaj Shankaranarayanan
@@ -44,9 +46,7 @@ public class ERDGenerator extends ERDGeneratorMain {
      * @description Helps in generating ERD Output file
      */
     private String getERDGeneratorOutputFile(final String databaseName) {
-        return ERDConstants.SQL_ERD_PATH + ERDConstants.SQL_ERD_FILE_PREFIX + databaseName
-                + GlobalConstants.STRING_UNDERSCORE
-                + System.currentTimeMillis() + GlobalConstants.EXTENSION_DOT_TXT;
+        return ERDConstants.SQL_ERD_PATH + ERDConstants.SQL_ERD_FILE_PREFIX + databaseName + GlobalConstants.EXTENSION_DOT_TXT;
     }
 
     /**
@@ -58,26 +58,31 @@ public class ERDGenerator extends ERDGeneratorMain {
             final String databaseName) throws ERDGeneratorException {
         final String erdGeneratorOutputFile = getERDGeneratorOutputFile(databaseName);
         for (final File tableName : allTables) {
-            try (final FileWriter fileWriter = new FileWriter(erdGeneratorOutputFile, true);
-                    final FileReader fileReader = new FileReader(tableName);
-                    final BufferedReader bufferedReader = new BufferedReader(fileReader)) {
-                final String tableNameString = tableName.getName().split(GlobalConstants.TABLE_NAME_DELIMITER)[0];
-                fileWriter.append(tableNameString + GlobalConstants.STRING_NEXT_LINE);
-                StringBuilder stringBuilder = new StringBuilder();
-                appendHyphens(tableNameString, stringBuilder);
-                fileWriter.append(stringBuilder.toString() + GlobalConstants.STRING_NEXT_LINE);
-                final String tableColumnNames = bufferedReader.readLine();
-                final String[] tableColumnNamesSplit = tableColumnNames.split(GlobalConstants.DELIMITER);
-                final List<String> cardinalities = new ArrayList<>();
-                writeERDToFile(fileWriter, tableNameString, tableColumnNamesSplit, cardinalities);
-                fileWriter.append(GlobalConstants.STRING_NEXT_LINE);
-                handleCardinalities(fileWriter, cardinalities);
-                fileWriter.append(GlobalConstants.STRING_NEXT_LINE);
-            } catch (final IOException e) {
-                final String message = GlobalConstants.STRING_ERROR_MESSAGE_PREFIX + e.getMessage()
-                        + GlobalConstants.STRING_ERROR_MESSAGE_SUFFIX;
-                eventLogger.logData(message);
-                throw new ERDGeneratorException(message);
+
+            //@author Ankush Mudgal - Bugfix - ignore metadata files in the DB directory
+            if (!tableName.toString().contains("meta")) {
+
+                try (final FileWriter fileWriter = new FileWriter(erdGeneratorOutputFile, true);
+                     final FileReader fileReader = new FileReader(tableName);
+                     final BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+                    final String tableNameString = tableName.getName().split(GlobalConstants.TABLE_NAME_DELIMITER)[0];
+                    fileWriter.append(tableNameString + GlobalConstants.STRING_NEXT_LINE);
+                    StringBuilder stringBuilder = new StringBuilder();
+                    appendHyphens(tableNameString, stringBuilder);
+                    fileWriter.append(stringBuilder.toString() + GlobalConstants.STRING_NEXT_LINE);
+                    final String tableColumnNames = bufferedReader.readLine();
+                    final String[] tableColumnNamesSplit = tableColumnNames.split(GlobalConstants.DELIMITER_ESCAPED);
+                    final List<String> cardinalities = new ArrayList<>();
+                    writeERDToFile(fileWriter, tableNameString, tableColumnNamesSplit, cardinalities);
+                    fileWriter.append(GlobalConstants.STRING_NEXT_LINE);
+                    handleCardinalities(fileWriter, cardinalities);
+                    fileWriter.append(GlobalConstants.STRING_NEXT_LINE);
+                } catch (final IOException e) {
+                    final String message = GlobalConstants.STRING_ERROR_MESSAGE_PREFIX + e.getMessage()
+                            + GlobalConstants.STRING_ERROR_MESSAGE_SUFFIX;
+                    eventLogger.logData(message);
+                    throw new ERDGeneratorException(message);
+                }
             }
         }
     }
@@ -204,6 +209,12 @@ public class ERDGenerator extends ERDGeneratorMain {
         if (!Files.exists(Paths.get(databasePath))) {
             ERDUtils.handleERDError(databasePath, databaseName, ERDConstants.ERROR_MESSAGE_FAILED_TO_GENERATE_ERD,
                     ERDConstants.ERROR_CAUSE_MESSAGE_INVALID_DATABASE_NAME, eventLogger);
+        }
+        if (RemoteUtils.isDistributed() && GlobalUtils.isDatabasePresentRemotely(databaseName)) {
+            String[] args = {RemoteConstants.COMMAND_REMOTE, RemoteConstants.COMMAND_EXPORT_SQL, databaseName};
+            RemoteUtils.executeInternalCommand(args);
+            RemoteUtils.download(getERDGeneratorOutputFile(databaseName), ERDConstants.SQL_ERD_PATH + databaseName);
+            return false;
         }
         final File[] allTables = GlobalUtils.readAllTables(databasePath);
         createERD(allTables, databaseName);

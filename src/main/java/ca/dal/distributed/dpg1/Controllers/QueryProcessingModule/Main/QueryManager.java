@@ -13,6 +13,7 @@ public class QueryManager {
      */
     public static String dataBaseInUse = null;
     public static boolean isTransactionActive = false;
+    public static String operationType = "";
 
     /**
      * Checks if the dataBaseInUse has a valid value.
