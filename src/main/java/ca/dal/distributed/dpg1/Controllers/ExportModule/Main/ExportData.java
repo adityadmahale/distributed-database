@@ -59,7 +59,7 @@ public class ExportData {
     private List<String> writeStructure(FileWriter writer, BufferedReader tableReader, String tableName) throws IOException {
         List<String> columnTypes = new ArrayList<>();
         String tableStructure = tableReader.readLine();
-        String[] columns = tableStructure.split(GlobalConstants.DELIMITER);
+        String[] columns = tableStructure.split(GlobalConstants.DELIMITER_ESCAPED);
         StringBuilder createTable = new StringBuilder();
         createTable.append("CREATE TABLE ").append(tableName).append("(");
         for (var column: columns) {
@@ -87,12 +87,12 @@ public class ExportData {
         while ((row = tableReader.readLine()) != null) {
             StringBuilder rowBuilder = new StringBuilder();
             rowBuilder.append("INSERT INTO ").append(tableName).append(" VALUES(");
-            columnValues = row.split(GlobalConstants.DELIMITER);
+            columnValues = row.split(GlobalConstants.DELIMITER_ESCAPED);
 
             // Parse field values
             int index = 0;
             for (var columnValue : columnValues) {
-                if (columnTypes.get(index).toLowerCase().equals("string")) {
+                if (columnTypes.get(index).toLowerCase().equals("text")) {
                     rowBuilder.append("'").append(columnValue).append("'").append(",");
                 } else {
                     rowBuilder.append(columnValue).append(",");
