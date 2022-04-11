@@ -1,2 +1,0 @@
-localDB1@localhost:8080
-localDB2@localhost:8080

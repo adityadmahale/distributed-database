@@ -38,6 +38,8 @@ public class DistributedDatabase {
             Login chk_login = new Login();
             Register reg = new Register();
             Scanner console = new Scanner(System.in);
+            Boolean queryStatus;
+
 
             System.out.println("*Hostname");
             System.out.println("Welcome");
