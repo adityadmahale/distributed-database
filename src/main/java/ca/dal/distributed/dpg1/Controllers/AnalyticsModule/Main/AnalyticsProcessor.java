@@ -1,6 +1,7 @@
 package ca.dal.distributed.dpg1.Controllers.AnalyticsModule.Main;
 import ca.dal.distributed.dpg1.Controllers.AnalyticsModule.Utils.AnalyticsConstants;
 import ca.dal.distributed.dpg1.Controllers.AnalyticsModule.Utils.AnalyticsUtils;
+import ca.dal.distributed.dpg1.Utils.GlobalUtils;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -44,16 +45,14 @@ public class AnalyticsProcessor {
                 String operation = match.group(1);
                 String databaseName = match.group(2);
                 // TODO: Get the isDBPresent method from the common class
-//                if(!Utility.isDBPresent(databaseName)) {
-//                    System.out.println("Database " + databaseName + " does not exist");
-//                    continue;
-//                }
+                if(!GlobalUtils.isDatabasePresent(databaseName)) {
+                    System.out.println("Database " + databaseName + " does not exist");
+                    continue;
+                }
                 processOperationQuery(operation, databaseName);
             } else if (!input.equals(AnalyticsConstants.EXIT_COMMAND)) {
                 // TODO: Get datbaseNames
-                List<String> databaseNames = new ArrayList<>();
-                databaseNames.add("db1");
-                databaseNames.add("db2");
+                List<String> databaseNames = GlobalUtils.getDatabaseNames();
                 processUserQuery(databaseNames);
             }
         }

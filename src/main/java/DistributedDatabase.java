@@ -1,3 +1,5 @@
+import ca.dal.distributed.dpg1.Controllers.AnalyticsModule.Main.AnalyticsProcessor;
+import ca.dal.distributed.dpg1.Controllers.AnalyticsModule.Utils.AnalyticsUpdate;
 import ca.dal.distributed.dpg1.Controllers.ERDModule.Exceptions.ERDGeneratorException;
 import ca.dal.distributed.dpg1.Controllers.ERDModule.Main.ERDGenerator;
 import ca.dal.distributed.dpg1.Controllers.ERDModule.Main.ERDGeneratorMain;
@@ -5,6 +7,7 @@ import ca.dal.distributed.dpg1.Controllers.ExportModule.Main.ExportData;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Exceptions.QueryExecutionRuntimeException;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Exceptions.QueryParseFailureException;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryExecutor;
+import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryManager;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Model.ExecutionResponse;
 import ca.dal.distributed.dpg1.Controllers.TransactionModule.Exceptions.TransactionExceptions;
 import ca.dal.distributed.dpg1.Controllers.UserInterfaceModule.Main.Login;
@@ -22,6 +25,7 @@ public class DistributedDatabase {
     static ERDGeneratorMain erdGenerator = new ERDGenerator();
 
     static QueryExecutor executor =new QueryExecutor();
+    static AnalyticsProcessor analyticsProcessor = new AnalyticsProcessor();
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, ERDGeneratorException, TransactionExceptions , QueryParseFailureException,QueryExecutionRuntimeException{
         if (RemoteUtils.isInternalCommand(args)) {
             RemoteUtils.executeInternalCommand(args);
@@ -88,6 +92,9 @@ public class DistributedDatabase {
                                             catch(Exception e)
                                             {
                                                 System.out.println(e.getMessage());
+                                            }finally {
+
+                                                AnalyticsUpdate.incrementUserCountData(QueryManager.dataBaseInUse, userName);
                                             }
                                         }
                                     Query="temp";
@@ -109,6 +116,7 @@ public class DistributedDatabase {
                                 // Analytics Function
                                 case "4":
                                     System.out.println("\nAnalytics Function Exectution");
+                                    analyticsProcessor.parseQuery();
                                     break;
                                 // Exit
                                 case "5":

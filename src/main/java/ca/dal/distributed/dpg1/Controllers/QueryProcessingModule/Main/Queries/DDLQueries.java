@@ -1,5 +1,8 @@
 package ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.Queries;
 
+import ca.dal.distributed.dpg1.Controllers.AnalyticsModule.Utils.AnalyticsConstants;
+import ca.dal.distributed.dpg1.Controllers.AnalyticsModule.Utils.AnalyticsInitialization;
+import ca.dal.distributed.dpg1.Controllers.AnalyticsModule.Utils.AnalyticsUtils;
 import ca.dal.distributed.dpg1.Controllers.LoggerModule.Enums.LoggerType;
 import ca.dal.distributed.dpg1.Controllers.LoggerModule.Main.EventLogger;
 import ca.dal.distributed.dpg1.Controllers.LoggerModule.Main.GeneralLogger;
@@ -12,6 +15,7 @@ import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.DatabaseC
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.MetaDataHandler;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.ResourceLockManager;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Utils.LoggerMessages;
+import ca.dal.distributed.dpg1.Controllers.UserInterfaceModule.Main.Login;
 import ca.dal.distributed.dpg1.Utils.GlobalConstants;
 import ca.dal.distributed.dpg1.Utils.GlobalUtils;
 import ca.dal.distributed.dpg1.Utils.RemoteConstants;
@@ -72,6 +76,9 @@ public class DDLQueries {
             if(isGlobalMetaDataUpdated){
                 generalLogger.logData("Database " + databaseName + "added to global metadata file.");
             }
+
+            AnalyticsInitialization.initializeMetaFile(databaseName);
+            AnalyticsInitialization.InitializeAllUserMetadata(Login.loggedUsers , databaseName);
 
             return new ExecutionResponse(true, LoggerMessages.dataBaseCreated(queryStartTime, databaseName));
 

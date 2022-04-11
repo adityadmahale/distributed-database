@@ -1,5 +1,6 @@
 package ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.Queries;
 
+import ca.dal.distributed.dpg1.Controllers.AnalyticsModule.Utils.AnalyticsUpdate;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Exceptions.QueryExecutionRuntimeException;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Model.ExecutionResponse;
 import ca.dal.distributed.dpg1.Controllers.QueryProcessingModule.Main.QueryManager;
@@ -180,6 +181,8 @@ public class DMLQueries {
 
                     // Release Exclusive ResourceLockManager
                     ResourceLockManager.releaseExclusiveLock(QueryManager.dataBaseInUse, tableName);
+                    AnalyticsUpdate.incrementOperationCountData(QueryManager.dataBaseInUse, QueryManager.operationType);
+
                     return new ExecutionResponse(true, "Data inserted in table " + tableName + " successfully.");
 
                 } catch (final IOException e) {
