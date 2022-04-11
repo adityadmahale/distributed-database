@@ -58,26 +58,31 @@ public class ERDGenerator extends ERDGeneratorMain {
             final String databaseName) throws ERDGeneratorException {
         final String erdGeneratorOutputFile = getERDGeneratorOutputFile(databaseName);
         for (final File tableName : allTables) {
-            try (final FileWriter fileWriter = new FileWriter(erdGeneratorOutputFile, true);
-                    final FileReader fileReader = new FileReader(tableName);
-                    final BufferedReader bufferedReader = new BufferedReader(fileReader)) {
-                final String tableNameString = tableName.getName().split(GlobalConstants.TABLE_NAME_DELIMITER)[0];
-                fileWriter.append(tableNameString + GlobalConstants.STRING_NEXT_LINE);
-                StringBuilder stringBuilder = new StringBuilder();
-                appendHyphens(tableNameString, stringBuilder);
-                fileWriter.append(stringBuilder.toString() + GlobalConstants.STRING_NEXT_LINE);
-                final String tableColumnNames = bufferedReader.readLine();
-                final String[] tableColumnNamesSplit = tableColumnNames.split(GlobalConstants.DELIMITER);
-                final List<String> cardinalities = new ArrayList<>();
-                writeERDToFile(fileWriter, tableNameString, tableColumnNamesSplit, cardinalities);
-                fileWriter.append(GlobalConstants.STRING_NEXT_LINE);
-                handleCardinalities(fileWriter, cardinalities);
-                fileWriter.append(GlobalConstants.STRING_NEXT_LINE);
-            } catch (final IOException e) {
-                final String message = GlobalConstants.STRING_ERROR_MESSAGE_PREFIX + e.getMessage()
-                        + GlobalConstants.STRING_ERROR_MESSAGE_SUFFIX;
-                eventLogger.logData(message);
-                throw new ERDGeneratorException(message);
+
+            //@author Ankush Mudgal - Bugfix - ignore metadata files in the DB directory
+            if (!tableName.toString().contains("meta")) {
+
+                try (final FileWriter fileWriter = new FileWriter(erdGeneratorOutputFile, true);
+                     final FileReader fileReader = new FileReader(tableName);
+                     final BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+                    final String tableNameString = tableName.getName().split(GlobalConstants.TABLE_NAME_DELIMITER)[0];
+                    fileWriter.append(tableNameString + GlobalConstants.STRING_NEXT_LINE);
+                    StringBuilder stringBuilder = new StringBuilder();
+                    appendHyphens(tableNameString, stringBuilder);
+                    fileWriter.append(stringBuilder.toString() + GlobalConstants.STRING_NEXT_LINE);
+                    final String tableColumnNames = bufferedReader.readLine();
+                    final String[] tableColumnNamesSplit = tableColumnNames.split(GlobalConstants.DELIMITER_ESCAPED);
+                    final List<String> cardinalities = new ArrayList<>();
+                    writeERDToFile(fileWriter, tableNameString, tableColumnNamesSplit, cardinalities);
+                    fileWriter.append(GlobalConstants.STRING_NEXT_LINE);
+                    handleCardinalities(fileWriter, cardinalities);
+                    fileWriter.append(GlobalConstants.STRING_NEXT_LINE);
+                } catch (final IOException e) {
+                    final String message = GlobalConstants.STRING_ERROR_MESSAGE_PREFIX + e.getMessage()
+                            + GlobalConstants.STRING_ERROR_MESSAGE_SUFFIX;
+                    eventLogger.logData(message);
+                    throw new ERDGeneratorException(message);
+                }
             }
         }
     }

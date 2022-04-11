@@ -66,8 +66,12 @@ public class QueryExecutor {
             } else if (queryToLowercase.contains(CREATE_TABLE_KEYWORD)) {
                 return ddlQueries.createTable(inputQuery);
             } else if (queryToLowercase.contains(INSERT_KEYWORD)) {
+
+                QueryManager.operationType = INSERT_KEYWORD;
                 return dmlQueries.insertInto(inputQuery);
             } else if (queryToLowercase.contains(SELECT_KEYWORD)) {
+
+                QueryManager.operationType = SELECT_KEYWORD;
 
                 if (queryToLowercase.contains(SELECT_ALL_KEYWORD)) {
                     return dmlQueries.selectAll(inputQuery);
