@@ -67,6 +67,19 @@ public class TransactionQueries {
                     throw new TransactionExceptions(error_message);
                 }
             }
+            Path source ;
+            source = Paths.get(GlobalConstants.DB_PATH+"/global_metadata.txt");
+            Path destination;
+            destination = Paths.get(GlobalConstants.CACHE_DB_PATH+"/global_metadata.txt");
+            try {
+                Files.copy(source, destination);
+            } catch (IOException e) {
+                e.printStackTrace();
+                String error_message = "Error: {" + e.getMessage() + "}!";
+                generalLogger.logData(error_message);
+                throw new TransactionExceptions(error_message);
+            }
+
 
             changeDBPath(true);
             return new ExecutionResponse(true, LoggerMessages.transactionStarted(Instant.now(), QueryManager.dataBaseInUse));
@@ -182,13 +195,7 @@ public class TransactionQueries {
             throw new TransactionExceptions(LoggerMessages.dataBaseDoesNotExist(Instant.now(), QueryManager.dataBaseInUse));
         }
         final File[] cacheTables = cacheDB.listFiles();
-//        if (cacheTables == null) {
-//            final String message = "Error: Database " + cacheDB + " failed to delete!" + " | " +
-//                    "Execution Time: " + getQueryExecutionTime(startTime, Instant.now()) + "ms";
-//            eventLogController.storeQueryLog(message, Instant.now());
-//            updateDatabasePath(false);
-//            throw new QueryProcessorException(message);
-//        }
+
         for (File searchTable : cacheTables) {
             if (!searchTable.delete()) {
 
