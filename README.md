@@ -8,7 +8,7 @@ structures via an export/create dump function, check the analytics of the system
 how many queries a user performed and of which type, and to generate an ERD based on the tables
 and the database structures in the system.
 
-The above specifications were detailed were distributed among the following 8 modules:
+Modules:
 
 1. Module 1: DB Design
 2. Module 2: Query Implementation
